@@ -1,15 +1,21 @@
 # FantasyHelper
 
-## Install Yahoo Fantasy Sports API Wrapper:
-``pip install yfpy``
 
-## Authenticate yahoo:
+Based on Coreyjs's [nhl-api-py](https://github.com/coreyjs/nhl-api-py) package. All package dependencies are managed using uv.
 
-You need to create a key and place it in `.env`. Those are found here: https://yfpy.uberfastman.com/readme/#yahoo-developer-network-app
+### Installation
 
-## Refresh db
-The database can be re-refreshed by running the following command in the command line:
+Download and install [uv](https://docs.astral.sh/uv/getting-started/installation/) from the astral website.
+
+Then sync dependencies using:
+
 ```
-yfpy-nhl-sqlite 21077
+uv sync
 ```
-where `21077` is the For-Keeps League ID.
+
+Then, open jupyter notebook:
+```
+uv run jupyter notebook
+```
+
+The app's core functionality is in [main.ipynb](main.ipynb).
