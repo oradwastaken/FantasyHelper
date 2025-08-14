@@ -1,0 +1,9 @@
+[project]
+name = "fantasyhelper"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "yfpy>=16.0.3",
+]
