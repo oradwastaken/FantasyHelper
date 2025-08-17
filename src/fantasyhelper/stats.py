@@ -100,3 +100,32 @@ def get_player_stats(season="20242025"):
     df_all_stats.set_index("playerId", inplace=True)
 
     return df_all_stats
+
+
+def get_week(date: str = "2025-01-20"):
+    """example date: "2025-01-20"""
+    week_df = pd.DataFrame(client.schedule.weekly_schedule(date))
+    gameWeek = pd.json_normalize(week_df["gameWeek"])
+    games = pd.json_normalize(gameWeek["games"])
+
+    records = []
+    for row in games.itertuples(index=False):
+        for item in row:
+            if item:  # skip "None"
+                records.append(item)
+
+    week_df = pd.DataFrame(records)
+
+    week_df = week_df[["id", "startTimeUTC", "homeTeam.abbrev", "awayTeam.abbrev"]]
+    week_df.rename(
+        columns={
+            "id": "gameId",
+            "startTimeUTC": "date",
+            "homeTeam.abbrev": "homeTeam",
+            "awayTeam.abbrev": "awayTeam",
+        },
+        inplace=True,
+    )
+    week_df.set_index("gameId", inplace=True)
+
+    return week_df
