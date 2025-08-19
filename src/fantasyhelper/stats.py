@@ -1,5 +1,8 @@
-from nhlpy import NHLClient
 import pandas as pd
+from nhlpy.api.query.builder import QueryBuilder, QueryContext
+from nhlpy.api.query.filters.game_type import GameTypeQuery
+from nhlpy.api.query.filters.season import SeasonQuery
+from nhlpy.nhl_client import NHLClient
 
 client = NHLClient()
 
@@ -42,34 +45,46 @@ def get_roster(team_abbr, season="20242025") -> pd.DataFrame:
 
 
 def get_player_stats(season="20242025"):
-    player_stats_dfs = []
-    i = 1
-    while i > 0:
-        stats = client.stats.skater_stats_summary(
-            start_season=season,
-            end_season=season,
-            start=100 * (i - 1) + 1,
-            limit=100 * i,
-        )
-        if stats == []:
-            i = -1
-        else:
-            player_stats_dfs.append(pd.DataFrame(stats))
-            i += 1
+    filters = [
+        GameTypeQuery(game_type="2"),
+        SeasonQuery(season_start=season, season_end=season),
+    ]
 
-    df_all_stats = pd.concat(
-        player_stats_dfs,
-        ignore_index=True,
-    )
+    query_builder = QueryBuilder()
+    query_context: QueryContext = query_builder.build(filters=filters)
 
-    # If player has played for multiple teams, only keep the most recent one:
-    df_all_stats["teamAbbrevs"] = df_all_stats["teamAbbrevs"].str.split(",").str[-1]
+    report_types = ["summary", "realtime", "bios", "faceoffwins"]
+    df_list = []
+    for report_type in report_types:
+        i = 1
+        data_list = []
+        while i > 0:
+            response = client.stats.skater_stats_with_query_context(
+                report_type=report_type,
+                query_context=query_context,
+                start=100 * (i - 1) + 1,
+                limit=100 * i,
+            )
+            data = pd.json_normalize(pd.DataFrame(response)["data"])
+            if data.empty:
+                i = -1
+            else:
+                data_list.append(data)
+                i += 1
 
-    df_all_stats = df_all_stats[
+        df = pd.concat(data_list, ignore_index=True)
+        df.set_index("playerId", inplace=True)
+        df_list.append(df)
+
+    df_stats = pd.concat(df_list, axis=1, ignore_index=False)
+    df_stats = df_stats.loc[:, ~df_stats.columns.duplicated()].copy()
+
+    df_stats = df_stats[
         [
-            "playerId",
+            "lastName",
             "skaterFullName",
-            "teamAbbrevs",
+            "currentTeamAbbrev",
+            "currentTeamName",
             "positionCode",
             "gamesPlayed",
             "goals",
@@ -78,13 +93,19 @@ def get_player_stats(season="20242025"):
             "shPoints",
             "gameWinningGoals",
             "shots",
+            "plusMinus",
+            "penaltyMinutes",
+            "totalFaceoffWins",
+            "hits",
         ]
     ]
 
-    df_all_stats.rename(
+    df_stats.rename(
         columns={
             "skaterFullName": "FullName",
-            "teamAbbrevs": "team",
+            "lastName": "LastName",
+            "currentTeamAbbrev": "team",
+            "currentTeamName": "FullTeam",
             "positionCode": "position",
             "gamesPlayed": "GP",
             "goals": "G",
@@ -92,14 +113,19 @@ def get_player_stats(season="20242025"):
             "ppPoints": "PPP",
             "shPoints": "SHP",
             "shots": "SOG",
-            "gameWinningGoals": "GWP",
+            "plusMinus": "+/-",
+            "penaltyMinutes": "PIM",
+            "gameWinningGoals": "GWG",
+            "totalFaceoffWins": "FW",
+            "hits": "HIT",
+            "blockedShots": "BLK",
         },
         inplace=True,
     )
 
-    df_all_stats.set_index("playerId", inplace=True)
+    df_stats = df_stats.dropna()
 
-    return df_all_stats
+    return df_stats
 
 
 def get_week(date: str = "2025-01-20"):
