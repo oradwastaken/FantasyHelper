@@ -1,3 +1,6 @@
+from datetime import date, timedelta, time
+from pathlib import Path
+
 import pandas as pd
 from nhlpy.api.query.builder import QueryBuilder, QueryContext
 from nhlpy.api.query.filters.game_type import GameTypeQuery
@@ -14,7 +17,15 @@ def clean_name(ntype, name):
     return name[ntype]["default"]
 
 
-def get_teams() -> pd.DataFrame:
+def get_previous_monday():
+    today = date.today()
+    days_since_monday = today.weekday() % 7
+    days_to_subtract = 7 if days_since_monday == 0 else days_since_monday
+    previous_monday = today - timedelta(days=days_to_subtract)
+    return previous_monday.strftime("%Y-%m-%d")
+
+
+def fetch_teams() -> pd.DataFrame:
     teams = client.teams.teams()
     df = pd.DataFrame(teams)
     df = df[["name", "abbr", "franchise_id"]].sort_values("name").reset_index(drop=True)
@@ -22,7 +33,7 @@ def get_teams() -> pd.DataFrame:
     return df
 
 
-def get_roster(team_abbr, season="20242025") -> pd.DataFrame:
+def fetch_roster(team_abbr, season="20242025") -> pd.DataFrame:
     players = client.teams.team_roster(team_abbr=team_abbr, season=season)
     for p in players["forwards"] + players["defensemen"] + players["goalies"]:
         p["team"] = team_abbr
@@ -44,7 +55,7 @@ def get_roster(team_abbr, season="20242025") -> pd.DataFrame:
     return df
 
 
-def get_player_stats(season="20242025"):
+def fetch_player_stats(season="20242025"):
     filters = [
         GameTypeQuery(game_type="2"),
         SeasonQuery(season_start=season, season_end=season),
@@ -128,7 +139,7 @@ def get_player_stats(season="20242025"):
     return df_stats
 
 
-def get_week(date: str = "2025-01-20"):
+def fetch_week(date: str = "2025-01-20"):
     """example date: "2025-01-20"""
     week_df = pd.DataFrame(client.schedule.weekly_schedule(date))
     gameWeek = pd.json_normalize(week_df["gameWeek"])
@@ -155,3 +166,74 @@ def get_week(date: str = "2025-01-20"):
     week_df.set_index("gameId", inplace=True)
 
     return week_df
+
+
+def update_data(hdf_path="nhl_data.h5", date: str = None, verbose=True):
+    """
+    Downloads/fetches data and updates the HDF5 store.
+
+    Parameters:
+        verbose (bool): If True, print status messages.
+    """
+
+    if date is None:
+        date = get_previous_monday()
+
+    if verbose:
+        print("Fetching rosters data...")
+    df_teams = fetch_teams()
+
+    if verbose:
+        print("Fetching schedule data...")
+    df_week = fetch_week(date)
+
+    if verbose:
+        print("Fetching stats...")
+    df_stats = fetch_player_stats()
+
+    if verbose:
+        print("Saving to HDF5...")
+
+    with pd.HDFStore(hdf_path, mode="w") as store:
+        store.put("df_teams", df_teams, format="table")
+        store.put("df_week", df_week, format="table")
+        store.put("df_stats", df_stats, format="table")
+        store.get_storer("df_teams").attrs.metadata = {
+            "source": "fetch_teams",
+            "timestamp": time(),
+        }
+        store.get_storer("df_week").attrs.metadata = {
+            "source": "fetch_week",
+            "timestamp": time(),
+        }
+        store.get_storer("df_stats").attrs.metadata = {
+            "source": "fetch_player_stats",
+            "timestamp": time(),
+        }
+
+    if verbose:
+        print("Update complete.")
+
+
+def load_data(hdf_path="nhl_data.h5", verbose=True):
+    """
+    Loads DataFrames from HDF5 store into a dictionary.
+
+    Returns:
+        dict of DataFrames
+    """
+    if not Path(hdf_path).exists():
+        raise FileNotFoundError(
+            f"HDF5 file not found at {hdf_path}. Run update_data() first."
+        )
+
+    if verbose:
+        print("Loading data from HDF5...")
+
+    with pd.HDFStore(hdf_path, mode="r") as store:
+        data = {key.strip("/"): store[key] for key in store.keys()}
+
+    if verbose:
+        print("Loaded:", ", ".join(data.keys()))
+
+    return data
