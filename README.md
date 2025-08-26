@@ -1,7 +1,7 @@
 # FantasyHelper
 
 
-Based on Coreyjs's [nhl-api-py](https://github.com/coreyjs/nhl-api-py) package. All package dependencies are managed using uv.
+Based on Coreyjs's [nhl-api-py](https://github.com/coreyjs/nhl-api-py) package and mattdodge's [yahoofantasy](https://github.com/mattdodge/yahoofantasy) packages. All package dependencies are managed using uv.
 
 ### Installation
 
