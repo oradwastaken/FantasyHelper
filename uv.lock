@@ -350,6 +350,7 @@ dependencies = [
     { name = "nhl-api-py" },
     { name = "pandas" },
     { name = "tables" },
+    { name = "yahoofantasy" },
     { name = "yfpy" },
 ]
 
@@ -360,6 +361,7 @@ requires-dist = [
     { name = "nhl-api-py", specifier = ">=3.0.2" },
     { name = "pandas", specifier = ">=2.3.1" },
     { name = "tables", specifier = ">=3.10.2" },
+    { name = "yahoofantasy", specifier = ">=1.4.8" },
     { name = "yfpy", specifier = ">=16.0.3" },
 ]
 
@@ -1316,6 +1318,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pydash"
+version = "8.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2f/24/91c037f47e434172c2112d65c00c84d475a6715425e3315ba2cbb7a87e66/pydash-8.0.5.tar.gz", hash = "sha256:7cc44ebfe5d362f4f5f06c74c8684143c5ac481376b059ff02570705523f9e2e", size = 164861, upload-time = "2025-01-17T16:08:50.562Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2c/86/e74c978800131c657fc5145f2c1c63e0cea01a49b6216f729cf77a2e1edf/pydash-8.0.5-py3-none-any.whl", hash = "sha256:b2625f8981862e19911daa07f80ed47b315ce20d9b5eb57aaf97aaf570c3892f", size = 102077, upload-time = "2025-01-17T16:08:47.91Z" },
+]
+
+[[package]]
 name = "pyflakes"
 version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1869,6 +1883,15 @@ wheels = [
 ]
 
 [[package]]
+name = "xmljson"
+version = "0.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/6f/d9f109ba19be510fd3098bcb72143c67ca6743cedb48ac75aef05ddfe960/xmljson-0.2.1.tar.gz", hash = "sha256:b4158e66aa1e62ee39f7f80eb2fe4f767670ba3c0d5de9804420dc53427fdec8", size = 29195, upload-time = "2020-04-25T04:10:32.623Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/91/2d/7191efe15406b8b99e2b5905ca676a8a3dc2936416ade7ed17752902c250/xmljson-0.2.1-py2.py3-none-any.whl", hash = "sha256:8f1d7aba2c0c1bfa0203b577f21a1d95fde4485205ff638b854cb4d834e639b0", size = 10145, upload-time = "2020-04-25T04:10:30.731Z" },
+]
+
+[[package]]
 name = "yahoo-oauth"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1880,6 +1903,22 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ad/e1/14ca99762c658d839be78fb15d959a3bfc72ba4cbe4b6d79b76b0b5532b2/yahoo_oauth-2.1.0.tar.gz", hash = "sha256:cac85f48a2007150ea70c104ed48601241b3f42b328c7a70e2dc083d6d46356f", size = 5676, upload-time = "2024-09-04T02:20:00.869Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e4/13/94d5ce4266f46964e3fe4042e09857c95043f90dfec71665bf3dd1fbdc03/yahoo_oauth-2.1.0-py3-none-any.whl", hash = "sha256:e4762e3139690f0c1e6af8109a9b8abe99ed4ba5853f269c69554135be6eeed8", size = 6593, upload-time = "2024-09-04T02:19:59.952Z" },
+]
+
+[[package]]
+name = "yahoofantasy"
+version = "1.4.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "colorama" },
+    { name = "pydash" },
+    { name = "requests" },
+    { name = "xmljson" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dd/c3/f7a3aa5ea63db9705c525290097ececa7a9cbf8ea9fdafb4d2c293a7a1dd/yahoofantasy-1.4.8.tar.gz", hash = "sha256:1bb59506bfe17343c80537419f4df4ce84ee616573aa7ecd9a667b26c43c6346", size = 36028, upload-time = "2025-06-19T15:00:42.472Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/76/cc/f8545839272d1e8c628bf4a7a48ee145b125e23ff2511af03d2ba590f576/yahoofantasy-1.4.8-py3-none-any.whl", hash = "sha256:a6c462107b9fca8b0e8984d69ab4e1cb062ee75b947fdc4675f5c121ac2ad041", size = 38148, upload-time = "2025-06-19T15:00:41.361Z" },
 ]
 
 [[package]]
