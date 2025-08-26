@@ -55,7 +55,68 @@ def fetch_roster(team_abbr, season="20242025") -> pd.DataFrame:
     return df
 
 
-def fetch_player_stats(season="20242025"):
+def fetch_goalie_stats(season="20242025"):
+    i = 1
+    data_list = []
+    while i > 0:
+        response = client.stats.goalie_stats_summary(
+            stats_type="summary",
+            start_season=season,
+            game_type_id=2,
+            end_season=season,
+            start=100 * (i - 1) + 1,
+            limit=100 * i,
+        )
+        data = pd.DataFrame(response)
+        if data.empty:
+            i = -1
+        else:
+            data_list.append(data)
+            i += 1
+
+    df_stats = pd.concat(data_list, ignore_index=False)
+    df_stats.set_index("playerId", inplace=True)
+
+    df_stats["currentTeamAbbrev"] = df_stats["teamAbbrevs"].apply(
+        lambda x: x.split(",")[-1].strip()
+    )
+
+    df_stats["position"] = "G"
+
+    df_stats = df_stats[
+        [
+            "lastName",
+            "goalieFullName",
+            "currentTeamAbbrev",
+            "position",
+            "gamesPlayed",
+            "wins",
+            "goalsAgainstAverage",
+            "savePct",
+            "shutouts",
+        ]
+    ]
+
+    df_stats.rename(
+        columns={
+            "goalieFullName": "FullName",
+            "lastName": "LastName",
+            "currentTeamAbbrev": "team",
+            "gamesPlayed": "GP",
+            "wins": "W",
+            "goalsAgainstAverage": "GAA",
+            "savePct": "SV%",
+            "shutouts": "SHO",
+        },
+        inplace=True,
+    )
+
+    df_stats = df_stats.dropna()
+
+    return df_stats
+
+
+def fetch_skater_stats(season="20242025"):
     filters = [
         GameTypeQuery(game_type="2"),
         SeasonQuery(season_start=season, season_end=season),
@@ -188,8 +249,12 @@ def update_data(hdf_path="nhl_data.h5", date: str = None, verbose=True):
     df_week = fetch_week(date)
 
     if verbose:
-        print("Fetching stats...")
-    df_stats = fetch_player_stats()
+        print("Fetching skater stats...")
+    df_skaters = fetch_skater_stats()
+
+    if verbose:
+        print("Fetching goalie stats...")
+    df_goalies = fetch_goalie_stats()
 
     if verbose:
         print("Saving to HDF5...")
@@ -197,7 +262,8 @@ def update_data(hdf_path="nhl_data.h5", date: str = None, verbose=True):
     with pd.HDFStore(hdf_path, mode="w") as store:
         store.put("df_teams", df_teams, format="table")
         store.put("df_week", df_week, format="table")
-        store.put("df_stats", df_stats, format="table")
+        store.put("df_skaters", df_skaters, format="table")
+        store.put("df_goalies", df_goalies, format="table")
         store.get_storer("df_teams").attrs.metadata = {
             "source": "fetch_teams",
             "timestamp": time(),
@@ -206,8 +272,12 @@ def update_data(hdf_path="nhl_data.h5", date: str = None, verbose=True):
             "source": "fetch_week",
             "timestamp": time(),
         }
-        store.get_storer("df_stats").attrs.metadata = {
-            "source": "fetch_player_stats",
+        store.get_storer("df_skaters").attrs.metadata = {
+            "source": "fetch_skater_stats",
+            "timestamp": time(),
+        }
+        store.get_storer("df_goalies").attrs.metadata = {
+            "source": "fetch_goalie_stats",
             "timestamp": time(),
         }
 
