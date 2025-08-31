@@ -1,3 +1,5 @@
+import ast
+
 import pandas as pd
 from yahoofantasy import Context
 from yahoofantasy import League
@@ -17,7 +19,7 @@ def get_fantasy_rosters(league_id: str = "453.l.21077"):
     records = []
     for fantasy_team in league.teams():
         for player in fantasy_team.players():
-            breakpoint()
+            pos_dict = ast.literal_eval(str(player.eligible_positions))
             records.append(
                 {
                     "fantasy_team": fantasy_team.name,
@@ -27,7 +29,7 @@ def get_fantasy_rosters(league_id: str = "453.l.21077"):
                     "lastName": player.name.last,
                     "team": player.editorial_team_abbr,
                     "player_id_yahoo": player.player_id,
-                    "position": str(player.eligible_positions),
+                    "position": pos_dict["position"],
                 }
             )
 

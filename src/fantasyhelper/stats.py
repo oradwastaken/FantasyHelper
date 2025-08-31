@@ -1,3 +1,4 @@
+import json
 from datetime import time
 from pathlib import Path
 
@@ -47,6 +48,9 @@ def update_data(hdf_path="nhl_data.h5", date: str = None, verbose=True):
     if verbose:
         print("Saving to HDF5...")
 
+    # Before saving, let's save all lists as strings:
+    df_fantasy_rosters["position"] = df_fantasy_rosters["position"].apply(json.dumps)
+
     with pd.HDFStore(hdf_path, mode="w") as store:
         store.put("df_teams", df_teams, format="table")
         store.put("df_week", df_week, format="table")
@@ -95,6 +99,11 @@ def load_data(hdf_path="nhl_data.h5", verbose=True):
 
     with pd.HDFStore(hdf_path, mode="r") as store:
         data = {key.strip("/"): store[key] for key in store.keys()}
+
+    # Let's unspool the stringed-lists back into list[str]
+    data["df_fantasy_rosters"]["position"] = data["df_fantasy_rosters"][
+        "position"
+    ].apply(json.loads)
 
     if verbose:
         print("Loaded:", ", ".join(data.keys()))
