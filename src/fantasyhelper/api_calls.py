@@ -6,11 +6,14 @@ from nhlpy.api.query.builder import QueryBuilder, QueryContext
 from nhlpy.api.query.filters.game_type import GameTypeQuery
 from nhlpy.api.query.filters.season import SeasonQuery
 from nhlpy.nhl_client import NHLClient
-from yahoofantasy import Context
-from yahoofantasy import League
+from yahoofantasy import Context, League
+
+from src.fantasyhelper.dates import get_current_season
 
 client = NHLClient()
 ctx = Context()
+
+CURRENT_SEASON = get_current_season()
 
 
 def fetch_teams() -> pd.DataFrame:
@@ -23,7 +26,7 @@ def fetch_week(date: str = "2025-01-20") -> pd.DataFrame:
     return pd.DataFrame(df_week)
 
 
-def fetch_skater_stats(season: str = "20242025") -> pd.DataFrame:
+def fetch_skater_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
     filters = [
         GameTypeQuery(game_type="2"),  # 2 = regular season
         SeasonQuery(season_start=season, season_end=season),
@@ -59,7 +62,7 @@ def fetch_skater_stats(season: str = "20242025") -> pd.DataFrame:
     return df_stats
 
 
-def fetch_goalie_stats(season: str = "20242025") -> pd.DataFrame:
+def fetch_goalie_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
     data_list = []
     for page in count(start=1):
         response = client.stats.goalie_stats_summary(
@@ -105,18 +108,19 @@ def fetch_fantasy_rosters(league_id: str = "453.l.21077"):
     return rosters
 
 
-def fetch_league_ids(year: int = 2024):
+def fetch_league_ids(year: int = CURRENT_SEASON[:4]):
     leagues = ctx.get_leagues("nhl", year)
     for league in leagues:
         print(league, league.id)
 
 
-def fetch_roster(team_abbr, season="20242025") -> pd.DataFrame:
+def fetch_roster(team_abbr, season=CURRENT_SEASON) -> pd.DataFrame:
     players = client.teams.team_roster(team_abbr=team_abbr, season=season)
     for p in players["forwards"] + players["defensemen"] + players["goalies"]:
         p["team"] = team_abbr
         p["firstName"] = clean_name("firstName", p)
         p["lastName"] = clean_name("lastName", p)
+
     forwards, defense, goalies = (
         players["forwards"],
         players["defensemen"],
