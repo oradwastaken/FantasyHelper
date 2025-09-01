@@ -4,6 +4,8 @@ import pandas as pd
 from yahoofantasy import Context
 from yahoofantasy import League
 
+from src.fantasyhelper.types import teams_enum
+
 ctx = Context()
 
 
@@ -33,4 +35,6 @@ def get_fantasy_rosters(league_id: str = "453.l.21077"):
                 }
             )
 
-    return pd.DataFrame(records)
+    rosters = pd.DataFrame(records)
+    rosters["team"] = pd.Categorical(rosters["team"], categories=teams_enum)
+    return rosters

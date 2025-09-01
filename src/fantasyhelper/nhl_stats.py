@@ -6,6 +6,8 @@ from nhlpy.api.query.filters.game_type import GameTypeQuery
 from nhlpy.api.query.filters.season import SeasonQuery
 from nhlpy.nhl_client import NHLClient
 
+from src.fantasyhelper.types import teams_enum
+
 client = NHLClient()
 
 
@@ -29,6 +31,7 @@ def fetch_teams() -> pd.DataFrame:
     df = pd.DataFrame(teams)
     df = df[["name", "abbr", "franchise_id"]].sort_values("name").reset_index(drop=True)
     df.set_index("franchise_id", inplace=True)
+    df["abbr"] = pd.Categorical(df["abbr"], categories=teams_enum)
     return df
 
 
@@ -50,6 +53,7 @@ def fetch_roster(team_abbr, season="20242025") -> pd.DataFrame:
     )
 
     df = df[["id", "firstName", "lastName", "positionCode", "team"]]
+    df["team"] = pd.Categorical(df["team"], categories=teams_enum)
     df.set_index("id", inplace=True)
     return df
 
@@ -111,6 +115,7 @@ def fetch_goalie_stats(season="20242025"):
     )
 
     df_stats = df_stats.dropna()
+    df_stats["team"] = pd.Categorical(df_stats["team"], categories=teams_enum)
 
     return df_stats
 
@@ -195,14 +200,14 @@ def fetch_skater_stats(season="20242025"):
     )
 
     df_stats = df_stats.dropna()
-
+    df_stats["team"] = pd.Categorical(df_stats["team"], categories=teams_enum)
     return df_stats
 
 
 def fetch_week(date: str = "2025-01-20"):
     """example date: "2025-01-20"""
-    week_df = pd.DataFrame(client.schedule.weekly_schedule(date))
-    gameWeek = pd.json_normalize(week_df["gameWeek"])
+    df_week = pd.DataFrame(client.schedule.weekly_schedule(date))
+    gameWeek = pd.json_normalize(df_week["gameWeek"])
     games = pd.json_normalize(gameWeek["games"])
 
     records = []
@@ -211,10 +216,10 @@ def fetch_week(date: str = "2025-01-20"):
             if item:  # skip "None"
                 records.append(item)
 
-    week_df = pd.DataFrame(records)
+    df_week = pd.DataFrame(records)
 
-    week_df = week_df[["id", "startTimeUTC", "homeTeam.abbrev", "awayTeam.abbrev"]]
-    week_df.rename(
+    df_week = df_week[["id", "startTimeUTC", "homeTeam.abbrev", "awayTeam.abbrev"]]
+    df_week.rename(
         columns={
             "id": "gameId",
             "startTimeUTC": "date",
@@ -223,6 +228,7 @@ def fetch_week(date: str = "2025-01-20"):
         },
         inplace=True,
     )
-    week_df.set_index("gameId", inplace=True)
-
-    return week_df
+    df_week.set_index("gameId", inplace=True)
+    df_week["homeTeam"] = pd.Categorical(df_week["homeTeam"], categories=teams_enum)
+    df_week["awayTeam"] = pd.Categorical(df_week["awayTeam"], categories=teams_enum)
+    return df_week
