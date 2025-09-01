@@ -4,13 +4,20 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.fantasyhelper.fantasy_stats import get_fantasy_rosters
-from src.fantasyhelper.nhl_stats import (
+from src.fantasyhelper.api_calls import (
+    fetch_fantasy_rosters,
     fetch_goalie_stats,
     fetch_skater_stats,
     fetch_teams,
     fetch_week,
-    get_previous_monday,
+)
+from src.fantasyhelper.dates import get_previous_monday
+from src.fantasyhelper.fantasy_stats import process_fantasy_rosters
+from src.fantasyhelper.nhl_stats import (
+    process_goalies,
+    process_skaters,
+    process_teams,
+    process_week,
 )
 
 
@@ -27,23 +34,28 @@ def update_data(hdf_path="nhl_data.h5", date: str = None, verbose=True):
 
     if verbose:
         print("Fetching NHL roster data...")
-    df_teams = fetch_teams()
+    df_teams_raw = fetch_teams()
+    df_teams = process_teams(df_teams_raw)
 
     if verbose:
         print("Fetching NHL schedule data...")
-    df_week = fetch_week(date)
+    df_week_raw = fetch_week(date)
+    df_week = process_week(df_week_raw)
 
     if verbose:
         print("Fetching NHL skater stats...")
-    df_skaters = fetch_skater_stats()
+    df_skaters_raw = fetch_skater_stats()
+    df_skaters = process_skaters(df_skaters_raw)
 
     if verbose:
         print("Fetching NHL goalie stats...")
-    df_goalies = fetch_goalie_stats()
+    df_goalies_raw = fetch_goalie_stats()
+    df_goalies = process_goalies(df_goalies_raw)
 
     if verbose:
         print("Fetching fantasy rosters...")
-    df_fantasy_rosters = get_fantasy_rosters()
+    df_fantasy_rosters_raw = fetch_fantasy_rosters()
+    df_fantasy_rosters = process_fantasy_rosters(df_fantasy_rosters_raw)
 
     if verbose:
         print("Saving to HDF5...")

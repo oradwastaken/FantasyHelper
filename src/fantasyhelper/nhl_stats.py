@@ -1,85 +1,23 @@
-from datetime import date, timedelta
-
 import pandas as pd
-from nhlpy.api.query.builder import QueryBuilder, QueryContext
-from nhlpy.api.query.filters.game_type import GameTypeQuery
-from nhlpy.api.query.filters.season import SeasonQuery
-from nhlpy.nhl_client import NHLClient
 
 from src.fantasyhelper.types import teams_enum
 
-client = NHLClient()
 
-
-def clean_name(ntype, name):
-    """
-    Clean the name of the player or team
-    """
-    return name[ntype]["default"]
-
-
-def get_previous_monday():
-    today = date.today()
-    days_since_monday = today.weekday() % 7
-    days_to_subtract = 7 if days_since_monday == 0 else days_since_monday
-    previous_monday = today - timedelta(days=days_to_subtract)
-    return previous_monday.strftime("%Y-%m-%d")
-
-
-def fetch_teams() -> pd.DataFrame:
-    teams = client.teams.teams()
-    df = pd.DataFrame(teams)
+def process_teams(df: pd.DataFrame) -> pd.DataFrame:
     df = df[["name", "abbr", "franchise_id"]].sort_values("name").reset_index(drop=True)
     df.set_index("franchise_id", inplace=True)
     df["abbr"] = pd.Categorical(df["abbr"], categories=teams_enum)
     return df
 
 
-def fetch_roster(team_abbr, season="20242025") -> pd.DataFrame:
-    players = client.teams.team_roster(team_abbr=team_abbr, season=season)
-    for p in players["forwards"] + players["defensemen"] + players["goalies"]:
-        p["team"] = team_abbr
-        p["firstName"] = clean_name("firstName", p)
-        p["lastName"] = clean_name("lastName", p)
-    forwards, defense, goalies = (
-        players["forwards"],
-        players["defensemen"],
-        players["goalies"],
-    )
-
-    df = pd.concat(
-        [pd.DataFrame(forwards), pd.DataFrame(defense), pd.DataFrame(goalies)],
-        ignore_index=True,
-    )
-
+def process_roster(df: pd.DataFrame) -> pd.DataFrame:
     df = df[["id", "firstName", "lastName", "positionCode", "team"]]
     df["team"] = pd.Categorical(df["team"], categories=teams_enum)
     df.set_index("id", inplace=True)
     return df
 
 
-def fetch_goalie_stats(season="20242025"):
-    i = 1
-    data_list = []
-    while i > 0:
-        response = client.stats.goalie_stats_summary(
-            stats_type="summary",
-            start_season=season,
-            game_type_id=2,
-            end_season=season,
-            start=100 * (i - 1) + 1,
-            limit=100 * i,
-        )
-        data = pd.DataFrame(response)
-        if data.empty:
-            i = -1
-        else:
-            data_list.append(data)
-            i += 1
-
-    df_stats = pd.concat(data_list, ignore_index=False)
-    df_stats.set_index("playerId", inplace=True)
-
+def process_goalies(df_stats: pd.DataFrame) -> pd.DataFrame:
     df_stats["currentTeamAbbrev"] = df_stats["teamAbbrevs"].apply(
         lambda x: x.split(",")[-1].strip()
     )
@@ -120,41 +58,7 @@ def fetch_goalie_stats(season="20242025"):
     return df_stats
 
 
-def fetch_skater_stats(season="20242025"):
-    filters = [
-        GameTypeQuery(game_type="2"),
-        SeasonQuery(season_start=season, season_end=season),
-    ]
-
-    query_builder = QueryBuilder()
-    query_context: QueryContext = query_builder.build(filters=filters)
-
-    report_types = ["summary", "realtime", "bios", "faceoffwins"]
-    df_list = []
-    for report_type in report_types:
-        i = 1
-        data_list = []
-        while i > 0:
-            response = client.stats.skater_stats_with_query_context(
-                report_type=report_type,
-                query_context=query_context,
-                start=100 * (i - 1) + 1,
-                limit=100 * i,
-            )
-            data = pd.json_normalize(pd.DataFrame(response)["data"])
-            if data.empty:
-                i = -1
-            else:
-                data_list.append(data)
-                i += 1
-
-        df = pd.concat(data_list, ignore_index=True)
-        df.set_index("playerId", inplace=True)
-        df_list.append(df)
-
-    df_stats = pd.concat(df_list, axis=1, ignore_index=False)
-    df_stats = df_stats.loc[:, ~df_stats.columns.duplicated()].copy()
-
+def process_skaters(df_stats: pd.DataFrame) -> pd.DataFrame:
     df_stats = df_stats[
         [
             "lastName",
@@ -204,9 +108,7 @@ def fetch_skater_stats(season="20242025"):
     return df_stats
 
 
-def fetch_week(date: str = "2025-01-20"):
-    """example date: "2025-01-20"""
-    df_week = pd.DataFrame(client.schedule.weekly_schedule(date))
+def process_week(df_week: pd.DataFrame) -> pd.DataFrame:
     gameWeek = pd.json_normalize(df_week["gameWeek"])
     games = pd.json_normalize(gameWeek["games"])
 
