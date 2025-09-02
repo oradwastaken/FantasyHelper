@@ -352,8 +352,9 @@ wheels = [
 [[package]]
 name = "fantasyhelper"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
+    { name = "ipykernel" },
     { name = "jupyter" },
     { name = "jupyter-black" },
     { name = "nhl-api-py" },
@@ -364,8 +365,14 @@ dependencies = [
     { name = "yfpy" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "fantasyhelper" },
+]
+
 [package.metadata]
 requires-dist = [
+    { name = "ipykernel", specifier = ">=6.30.1" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "jupyter-black", specifier = ">=0.4.0" },
     { name = "nhl-api-py", specifier = ">=3.0.2" },
@@ -375,6 +382,9 @@ requires-dist = [
     { name = "yahoofantasy", specifier = ">=1.4.8" },
     { name = "yfpy", specifier = ">=16.0.3" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "fantasyhelper", editable = "." }]
 
 [[package]]
 name = "fastjsonschema"

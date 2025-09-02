@@ -8,7 +8,7 @@ from nhlpy.api.query.filters.season import SeasonQuery
 from nhlpy.nhl_client import NHLClient
 from yahoofantasy import Context, League
 
-from src.fantasyhelper.dates import get_current_season
+from fantasyhelper.dates import get_current_season
 
 client = NHLClient()
 ctx = Context()

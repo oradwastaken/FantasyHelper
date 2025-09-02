@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = "==3.11.*"
 dependencies = [
+    "ipykernel>=6.30.1",
     "jupyter>=1.1.1",
     "jupyter-black>=0.4.0",
     "nhl-api-py>=3.0.2",
@@ -14,3 +15,24 @@ dependencies = [
     "yahoofantasy>=1.4.8",
     "yfpy>=16.0.3",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fantasyhelper"]
+
+[tool.uv.workspace]
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+fantasyhelper = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "fantasyhelper",
+]
+

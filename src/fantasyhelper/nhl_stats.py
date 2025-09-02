@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.fantasyhelper.types import teams_enum
+from fantasyhelper.types import teams_enum
 
 
 def process_teams(df: pd.DataFrame) -> pd.DataFrame:

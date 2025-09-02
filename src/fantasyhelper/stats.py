@@ -4,16 +4,16 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.fantasyhelper.api_calls import (
+from fantasyhelper.api_calls import (
     fetch_fantasy_rosters,
     fetch_goalie_stats,
     fetch_skater_stats,
     fetch_teams,
     fetch_week,
 )
-from src.fantasyhelper.dates import get_previous_monday
-from src.fantasyhelper.fantasy_stats import process_fantasy_rosters
-from src.fantasyhelper.nhl_stats import (
+from fantasyhelper.dates import get_previous_monday
+from fantasyhelper.fantasy_stats import process_fantasy_rosters
+from fantasyhelper.nhl_stats import (
     process_goalies,
     process_skaters,
     process_teams,
