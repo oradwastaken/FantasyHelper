@@ -384,7 +384,7 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "fantasyhelper", editable = "." }]
+dev = [{ name = "fantasyhelper" }]
 
 [[package]]
 name = "fastjsonschema"
