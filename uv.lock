@@ -1940,7 +1940,7 @@ wheels = [
 
 [[package]]
 name = "yahoofantasy"
-version = "1.4.8"
+version = "1.4.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -1949,9 +1949,9 @@ dependencies = [
     { name = "requests" },
     { name = "xmljson" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dd/c3/f7a3aa5ea63db9705c525290097ececa7a9cbf8ea9fdafb4d2c293a7a1dd/yahoofantasy-1.4.8.tar.gz", hash = "sha256:1bb59506bfe17343c80537419f4df4ce84ee616573aa7ecd9a667b26c43c6346", size = 36028, upload-time = "2025-06-19T15:00:42.472Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8a/27/d1f72e3648678c06654db35e1fdf7d99e93a9bd12fc5e58422d6492d922d/yahoofantasy-1.4.9.tar.gz", hash = "sha256:bf5c6ff563d1fe26faf8330b4ef72f9d8b887ce1f6dd3d3e6fe65135eef07fc2", size = 36065, upload-time = "2025-10-18T21:41:26.283Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/76/cc/f8545839272d1e8c628bf4a7a48ee145b125e23ff2511af03d2ba590f576/yahoofantasy-1.4.8-py3-none-any.whl", hash = "sha256:a6c462107b9fca8b0e8984d69ab4e1cb062ee75b947fdc4675f5c121ac2ad041", size = 38148, upload-time = "2025-06-19T15:00:41.361Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/5f/aeff376766eeabcca0491fb016ca291c67e5d85c4bc6a3ced09e8f60f02a/yahoofantasy-1.4.9-py3-none-any.whl", hash = "sha256:955007f05e3d9f5df976102b6a6a8e2878b0f30206b3a6dfaf1b76b52ba6ab31", size = 38160, upload-time = "2025-10-18T21:41:25.172Z" },
 ]
 
 [[package]]

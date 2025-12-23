@@ -14,6 +14,7 @@ client = NHLClient()
 ctx = Context()
 
 CURRENT_SEASON = get_current_season()
+LEAGUE_ID = "465.l.6920"  # For Keeps Mk-XII 2025-2026 season
 
 
 def fetch_teams() -> pd.DataFrame:
@@ -84,7 +85,7 @@ def fetch_goalie_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
     return df_stats
 
 
-def fetch_fantasy_rosters(league_id: str = "453.l.21077"):
+def fetch_fantasy_rosters(league_id: str = LEAGUE_ID):
     league = League(ctx, league_id)
 
     records = []

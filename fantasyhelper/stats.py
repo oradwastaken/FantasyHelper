@@ -33,7 +33,7 @@ def update_data(hdf_path="nhl_data.h5", date: str = None, verbose=True):
         date = get_previous_monday()
 
     if verbose:
-        print("Fetching NHL roster data...")
+        print(f"Fetching NHL roster data (date = {date})...")
     df_teams_raw = fetch_teams()
     df_teams = process_teams(df_teams_raw)
 
