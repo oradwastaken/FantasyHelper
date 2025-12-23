@@ -55,6 +55,14 @@ def process_goalies(df_stats: pd.DataFrame) -> pd.DataFrame:
     df_stats = df_stats.dropna()
     df_stats["team"] = pd.Categorical(df_stats["team"], categories=teams_enum)
 
+    # Remove umlaut and other symbols:
+    df_stats["FullName"] = (
+        df_stats["FullName"]
+        .str.normalize("NFKD")
+        .str.encode("ascii", errors="ignore")
+        .str.decode("ascii")
+    )
+
     return df_stats
 
 
@@ -105,6 +113,14 @@ def process_skaters(df_stats: pd.DataFrame) -> pd.DataFrame:
 
     df_stats = df_stats.dropna()
     df_stats["team"] = pd.Categorical(df_stats["team"], categories=teams_enum)
+
+    # Remove umlaut and other symbols:
+    df_stats["FullName"] = (
+        df_stats["FullName"]
+        .str.normalize("NFKD")
+        .str.encode("ascii", errors="ignore")
+        .str.decode("ascii")
+    )
     return df_stats
 
 
