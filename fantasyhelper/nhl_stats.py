@@ -85,6 +85,7 @@ def process_skaters(df_stats: pd.DataFrame) -> pd.DataFrame:
             "penaltyMinutes",
             "totalFaceoffWins",
             "hits",
+            "blockedShots",
         ]
     ]
 

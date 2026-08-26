@@ -1,0 +1,35 @@
+league:
+  yahoo_league_id: "465.l.6920"
+  team_count: 8
+  my_team_name: "Slaffing From The Throne"
+  rival_team_name: "McJesus Take The Wheel"
+season:
+  target: "20262027"
+  historical: "20252026"
+  games_per_season: 84
+  regular_season_game_type: 2
+roster:
+  active_slots: {C: 4, LW: 4, RW: 4, D: 6, UTIL: 2, G: 4}
+  total_roster_size: 30
+ranking:
+  methodology: z_score
+  projection_weight: 0.70
+  historical_weight: 0.30
+  goalie_min_games_played: 15
+  schedule_tiebreaker_weight: 0.05
+  playoff_tiebreaker_weight: 0.10
+  rival_tiebreaker_weight: 0.05
+schedule:
+  start_date: "2026-10-05"
+  end_date: "2027-04-18"
+  playoff_weeks: []
+  rival_matchup_weeks: []
+sources:
+  projections_sheet_url: ""
+  projections_tab: "Player Values - Cats"
+  cache_directory: data/cache
+google_sheets:
+  spreadsheet_title: "Fantasy Hockey Rankings"
+  spreadsheet_id: ""
+  credentials_path: .secrets/google-oauth-client.json
+  token_path: .secrets/google-token.json

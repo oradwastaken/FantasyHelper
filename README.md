@@ -33,3 +33,17 @@ Based on Coreyjs's [nhl-api-py](https://github.com/coreyjs/nhl-api-py) package a
     ```
 
     The app's core functionality is in [main.ipynb](main.ipynb).
+
+## Rankings workflow
+
+Edit [config.yaml](config.yaml) with the current Yahoo league, season, schedule, and
+Google projections-sheet details. Build CSV reports from the local HDF5 snapshot with:
+
+```bash
+uv run fantasyhelper build
+```
+
+To include projections, create a Google OAuth desktop client JSON file at the configured
+credentials path and run `uv run fantasyhelper build --with-projections`. The first use
+opens a browser sign-in flow. Publish all reports to a new (or configured existing) Google
+Sheet with `uv run fantasyhelper publish --with-projections`.

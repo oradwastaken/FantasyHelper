@@ -1,4 +1,5 @@
 import ast
+from datetime import date, timedelta
 from itertools import count
 
 import pandas as pd
@@ -27,6 +28,18 @@ def fetch_week(date: str = "2025-01-20") -> pd.DataFrame:
     return pd.DataFrame(df_week)
 
 
+def fetch_schedule(start_date: str, end_date: str) -> pd.DataFrame:
+    """Fetch every weekly schedule in a date range, deduplicated by game id."""
+    current = date.fromisoformat(start_date)
+    end = date.fromisoformat(end_date)
+    weeks = []
+    while current <= end:
+        weeks.append(fetch_week(current.isoformat()))
+        current += timedelta(days=7)
+    schedule = pd.concat(weeks, ignore_index=True)
+    return schedule.drop_duplicates(subset="id") if "id" in schedule else schedule
+
+
 def fetch_skater_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
     filters = [
         GameTypeQuery(game_type="2"),  # 2 = regular season
@@ -45,7 +58,7 @@ def fetch_skater_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
                 report_type=report_type,
                 query_context=query_context,
                 start=100 * (page - 1) + 1,
-                limit=100 * page,
+                limit=100,
             )
             data = pd.json_normalize(pd.DataFrame(response)["data"])
 
@@ -72,7 +85,7 @@ def fetch_goalie_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
             game_type_id=2,
             end_season=season,
             start=100 * (page - 1) + 1,
-            limit=100 * page,
+            limit=100,
         )
         data = pd.DataFrame(response)
         if data.empty:
