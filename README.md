@@ -40,10 +40,15 @@ Edit [config.yaml](config.yaml) with the current Yahoo league, season, schedule,
 Google projections-sheet details. Build CSV reports from the local HDF5 snapshot with:
 
 ```bash
-uv run fantasyhelper build
+uv sync --no-editable
+uv run --no-editable fantasyhelper build
 ```
 
+This project uses a non-editable install because the current macOS Python environment
+does not load editable-install path files reliably. Re-run `uv sync --no-editable` after
+changing package source files.
+
 To include projections, create a Google OAuth desktop client JSON file at the configured
-credentials path and run `uv run fantasyhelper build --with-projections`. The first use
+credentials path and run `uv run --no-editable fantasyhelper build --with-projections`. The first use
 opens a browser sign-in flow. Publish all reports to a new (or configured existing) Google
-Sheet with `uv run fantasyhelper publish --with-projections`.
+Sheet with `uv run --no-editable fantasyhelper publish --with-projections`.
