@@ -10,6 +10,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+from fantasyhelper.rosters import RosterUpdate, build_roster_update, fetch_local_rosters
+
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"]
 
 
@@ -52,3 +54,41 @@ def publish_reports(reports: dict[str, pd.DataFrame], config: dict) -> str:
     for title, frame in reports.items():
         _write_frame(spreadsheet, title[:100], frame)
     return spreadsheet.url
+
+
+def _apply_rosters(config: dict, yahoo_rosters: pd.DataFrame) -> RosterUpdate:
+    """Apply a normalized Yahoo roster frame to the configured worksheet."""
+    settings = config["google_sheets"]
+    roster = config["roster_sync"]
+    spreadsheet_id = settings.get("spreadsheet_id")
+    if not spreadsheet_id:
+        raise ValueError("google_sheets.spreadsheet_id is required for update-roster")
+
+    client = get_gspread_client(settings["credentials_path"], settings["token_path"])
+    worksheet = client.open_by_key(spreadsheet_id).worksheet(roster["worksheet"])
+    first_row = int(roster["first_data_row"])
+    last_row = int(roster["last_data_row"])
+    player_column = roster["player_name_column"]
+    owner_column = roster["owner_column"]
+    row_count = last_row - first_row + 1
+    sheet_names = [row[0] if row else "" for row in worksheet.get(f"{player_column}{first_row}:{player_column}{last_row}")]
+    # gspread omits trailing empty rows from ``get``; retain the full target range
+    # so stale owner values are also reset to Undrafted.
+    sheet_names.extend([""] * (row_count - len(sheet_names)))
+    result = build_roster_update(sheet_names, yahoo_rosters, roster.get("manager_aliases"))
+    worksheet.update(result.values, f"{owner_column}{first_row}:{owner_column}{last_row}")
+    return result
+
+
+def update_rosters(config: dict) -> RosterUpdate:
+    """Fetch Yahoo API rosters and write ownership into one sheet column."""
+    # Import lazily: report publishing should not require Yahoo credentials.
+    from fantasyhelper.api_calls import fetch_fantasy_rosters
+
+    return _apply_rosters(config, fetch_fantasy_rosters(config["league"]["yahoo_league_id"]))
+
+
+def update_rosters_from_local_html(config: dict) -> RosterUpdate:
+    """Update ownership from the most recently saved Yahoo roster-page HTML."""
+    source = config["roster_sync"]["local_html_glob"]
+    return _apply_rosters(config, fetch_local_rosters(source))

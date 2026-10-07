@@ -28,6 +28,12 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "google_sheets": {"spreadsheet_title": "Fantasy Hockey Rankings",
                       "spreadsheet_id": "", "credentials_path": ".secrets/google-oauth-client.json",
                       "token_path": ".secrets/google-token.json"},
+    "roster_sync": {"worksheet": "Player Values - Cats", "player_name_column": "E",
+                    "owner_column": "D", "first_data_row": 3, "last_data_row": 783,
+                    "local_html_glob": "roster_site/*.html", "manager_aliases": {}},
+    "season_stats_sync": {"worksheet": "Stats (Season)", "last_two_weeks_worksheet": "Stats (Last 2 weeks)", "projections_worksheet": "Projections",
+                          "player_id_column": "A", "header_row": 2, "first_data_row": 3,
+                          "last_data_row": 782},
 }
 
 

@@ -1,0 +1,64 @@
+# Fantasy Hockey Helper
+
+Help me improve the fantasy hockey scripting project in this repo. In this spec doc, I will describe the project. Read it and interview me to find the real goal of this project, and to find any gaps in my spec. After our interview, draft a detailed spec to implement the changes we want to make in the code in this repo.
+
+A successful script will produce two player rankings:
+* A ranking of the best players at each position
+* A ranking of the best players for a given category
+
+In subsequent projects, we will build out this tool to help us with our draft, to help us set our weekly line-ups, and to help us design trade offers with other teams in our leagues.
+
+## Background
+Rob and I (Orad) are in a fantasy hockey league together. It is a keeper league, where we keep some current players from our roster, as well as a "cats" league, meaning we compete in different categories.
+
+### Repo
+The repo in the current directory already contains some scripts that connect to the yahoo fantasy API, allowing us to scrape the current player rosters and stats. It also scrapes the NHL API for the game schedule. We are currently out of season, so these scripts may not work for the current season. Read the scripts here carefully so you understand the workflow we have set up and the dependencies we use.
+
+### Fantasy hockey
+
+#### Categories
+The 15 categories in configured in our league are separated into 2 types:
+* Skater stats: G, A, +/-, PIM, PPP, SHP, SOG, FOW, HIT, BLK
+* Goalie stats: W, GAA, SV%, SO
+
+All of the skater stats are aggregated such that the team with the larger number wins.
+
+For goalie stats, this is only true for W and SO. GAA and SV% are averaged over many games -- for GAA, the team with the lower value wins, and for SV%, the higher value wins. We also must take into account predicted goalie starts (GS), since some will have high averages but play very few games.
+
+#### Stats
+For the 2025-2026 season, we had an aggregate projections spreadsheet. See the "Player Values - Cats" sheet in the spreadsheet here:
+https://docs.google.com/spreadsheets/d/1a_fBbZ7VXyluEGWNOnXWWFrcrqrP1RA9sBgwtEQdEyE/edit?gid=1990855882#gid=1990855882
+
+The repo also has access to an API that can pull old stats from previous seasons. For the 2026-2027 season, it will be useful to have 2025-2026 season historical data. It will also be valuable to prorate some of these alues (for example, dividing the number of goals or assist by the number of games played, and then multiplying by 84 - the total number of games in a season). That way, players that were injured for part of last season won't be penalized for a future season
+
+Finally all 15 up-to-date stats may be pulled live from the internet by calling the update_data() method.
+
+#### Roster sizes
+A complete team consists of 30 players.
+
+Meanwhile, an "active" roster consists of 4 C, 4 LW, 4 RW, 6 D and 4 G per night. The active roster also includes 2 additional "util" slots, which can be any of C, LW, RW, D (so, any "skaters"). We can select different players from our roster to be considered "active" every night. We cannot exceed any number of slots, however. As an example, suppose we have 7 C playing on a given night, we could roster 4 of them under the "C" slot, 2 more as "util" players, but the 7th will have to be benched. There are so many slots available that this hardly acts as a limitation, as all of our best players will always have a spot open for them. However, it forces us to have a certain roster construction (for example, we can't have only LW, but we must draft some RW as well).
+
+In addition to making trades, we are allowed to pick up players from Free Agency. Sometimes, a new player breaks out, and we can pick them up while dropping one of our worst players. More often, these are weaker players, but they are worth picking up if they have good schedules. Every team typically has a few slots (known as "streaming slots") reserved for dropping the weakest player and picking up a different (also weak) player with a better schedule. In our league, we are allowed a maximum of 5 of these "free-agency signings (known as "adds") per week, and only 43 throughout the season, INCLUDING the playoffs. These need to be portioned carefully throughout the season. A good team will always keep 5 per week for each week in the playoffs.
+
+#### Schedule
+Every week, we are matched up against a different opponent. By draft day, we will have access to the complete schedule, and will know who we play on what weeks. As this is a keeper league, we can predict who some of their players will be (and in particular, their best players). Therefore, we have some knowledge of which players which are strongest at which categories are most likely to play many games in a given week.
+
+As an example, on week 1, we might play someone who has a a great goalscoring center who plays 4 games. On week 2, we might play against someone whose bruiser (i.e., a player who has lots hits) plays many games, but who won't have many goalscorers then. Therefore, we can optimize for a player with a good schedule who scores a lot of goals in week 1, and a different player with a good schedule who hits a lot in week 2.
+
+The playoff schedule is also already determined, although we don't know who our opponent will be. We are fairly sure we will make the players, so we are ok with prioritizing the playoffs over the regular season. We need to maximize the number of games played by our best players during playoff weeks.
+
+Finally, we have a rival in this league. This rival's team name is "McJesus Take The Wheel" although this is subject to change. (You may want to keep track of this rival based on the manager name or the keeper players.) We want to maximize our wins against our rival whenever we meet them this week.
+
+Note: the priority should be to draft strong players. However, given 2 players of equal value for their given roster spot, having a good Playoff Schedule, Rival Schedule, and general schedule quality, should all be factored in as a tiebreaker. Note that it's easy for us to pick strong players; it's hard for us to distinguish a good schedule from a bad one. Also, if a player has an excellent schedule but isn't that great, we are likely to drop them in favour of a better one during the season, wasting a draft pick.
+
+## Implementation
+1. Read the code in the repo to learn about the different API calls. Test it out to make sure everything still authenticates and works properly.
+2. As a first pass, inspect the API for the dependencies (nhlpy and yahoofantasy) and see if there is a dramatically more efficient way to download the stats we are interested. For example, I would like to avoid being rate-limited, which happens sometimes.
+3. Adjust the script to generate the rankings mentioned above. These rankings should include the raw stats, but also the strength of schedule, as described above.
+4. Populate a googlesheet with the rankings so that Rob and I can inspect the results.
+
+Be sure to commit all of your work to git.
+
+## Verification
+After we are done building our scripts, we can verify it by pulling the data from the 2025 off-season, building a ranking based on that data, and comparing it to the actual end of year fantasy rankings.
+

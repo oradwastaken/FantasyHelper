@@ -1,0 +1,906 @@
+team,eligible_positions,GP,low_sample,projection_available
+COL,['C'],35.0,False,False
+SJS,['C'],36.0,False,False
+EDM,"['C', 'LW']",37.0,False,False
+DAL,"['LW', 'RW']",36.0,False,False
+COL,['RW'],35.0,False,False
+CHI,"['C', 'RW']",31.0,False,False
+DAL,"['LW', 'RW']",37.0,False,False
+TBL,['RW'],31.0,False,False
+WPG,['C'],35.0,False,False
+WPG,['LW'],35.0,False,False
+COL,['D'],35.0,False,False
+MIN,"['LW', 'RW']",37.0,False,False
+MIN,['LW'],37.0,False,False
+VGK,['C'],31.0,False,False
+ANA,['C'],36.0,False,False
+DAL,"['C', 'RW']",37.0,False,False
+FLA,"['LW', 'RW']",34.0,False,False
+CBJ,['D'],35.0,False,False
+MTL,['C'],36.0,False,False
+DET,"['LW', 'RW']",37.0,False,False
+BOS,['RW'],32.0,False,False
+BOS,"['C', 'LW', 'RW']",37.0,False,False
+DET,['RW'],35.0,False,False
+OTT,"['C', 'LW']",35.0,False,False
+TOR,"['C', 'RW']",31.0,False,False
+VGK,"['LW', 'RW']",34.0,False,False
+TBL,['LW'],35.0,False,False
+ANA,['LW'],36.0,False,False
+NYR,['LW'],37.0,False,False
+OTT,"['LW', 'RW']",32.0,False,False
+PHI,"['C', 'LW', 'RW']",34.0,False,False
+FLA,"['C', 'RW']",35.0,False,False
+ANA,['RW'],36.0,False,False
+MTL,"['LW', 'RW']",36.0,False,False
+WSH,['RW'],36.0,False,False
+DET,['C'],37.0,False,False
+DAL,['D'],37.0,False,False
+EDM,['D'],37.0,False,False
+BUF,"['C', 'RW']",35.0,False,False
+MTL,['D'],36.0,False,False
+UTA,"['C', 'RW']",38.0,False,False
+UTA,"['LW', 'RW']",38.0,False,False
+NYI,['C'],32.0,False,False
+TBL,"['LW', 'RW']",32.0,False,False
+TOR,['C'],35.0,False,False
+CAR,['C'],35.0,False,False
+WPG,"['C', 'RW']",35.0,False,False
+WSH,"['LW', 'RW']",36.0,False,False
+CGY,['C'],36.0,False,False
+EDM,"['C', 'LW']",28.0,False,False
+DAL,['C'],32.0,False,False
+LAK,['RW'],34.0,False,False
+PHI,"['LW', 'RW']",34.0,False,False
+NSH,['C'],35.0,False,False
+UTA,"['LW', 'RW']",38.0,False,False
+PIT,"['C', 'LW']",26.0,False,False
+TOR,['LW'],32.0,False,False
+PIT,['RW'],33.0,False,False
+SJS,"['C', 'RW']",33.0,False,False
+BUF,"['LW', 'RW']",34.0,False,False
+CAR,"['C', 'LW', 'RW']",34.0,False,False
+COL,"['LW', 'RW']",35.0,False,False
+WPG,['D'],35.0,False,False
+NYI,"['C', 'RW']",35.0,False,False
+NJD,"['LW', 'RW']",36.0,False,False
+WSH,['D'],32.0,False,False
+BUF,['D'],32.0,False,False
+FLA,['LW'],34.0,False,False
+NSH,['LW'],35.0,False,False
+WSH,['D'],36.0,False,False
+NJD,['C'],36.0,False,False
+ANA,['RW'],36.0,False,False
+MTL,['RW'],36.0,False,False
+VGK,['RW'],18.0,False,False
+STL,['C'],33.0,False,False
+VGK,"['C', 'LW']",34.0,False,False
+MIN,['LW'],35.0,False,False
+OTT,['C'],35.0,False,False
+FLA,['C'],35.0,False,False
+NYR,"['C', 'RW']",37.0,False,False
+DET,['D'],37.0,False,False
+UTA,"['LW', 'RW']",38.0,False,False
+CAR,['D'],26.0,False,False
+NYR,['D'],27.0,False,False
+MIN,['D'],31.0,False,False
+CBJ,['RW'],31.0,False,False
+CHI,"['LW', 'RW']",32.0,False,False
+WSH,['C'],34.0,False,False
+PIT,['D'],35.0,False,False
+OTT,['D'],35.0,False,False
+BOS,"['C', 'LW']",36.0,False,False
+MIN,['C'],37.0,False,False
+VGK,['LW'],34.0,False,False
+COL,['C'],35.0,False,False
+FLA,['C'],35.0,False,False
+CGY,['D'],36.0,False,False
+UTA,['D'],38.0,False,False
+TBL,['D'],29.0,False,False
+TOR,['D'],34.0,False,False
+NSH,[],34.0,False,False
+OTT,"['LW', 'RW']",35.0,False,False
+CAR,"['LW', 'RW']",35.0,False,False
+BUF,"['LW', 'RW']",35.0,False,False
+NYI,['D'],36.0,False,False
+DET,['RW'],24.0,False,False
+BOS,['C'],27.0,False,False
+UTA,['C'],29.0,False,False
+CHI,[],30.0,False,False
+TOR,['C'],30.0,False,False
+NJD,"['LW', 'RW']",31.0,False,False
+PHI,['C'],33.0,False,False
+LAK,['LW'],34.0,False,False
+VGK,"['LW', 'RW']",34.0,False,False
+CAR,"['LW', 'RW']",35.0,False,False
+CBJ,[],35.0,False,False
+NYI,[],36.0,False,False
+SJS,"['LW', 'RW']",36.0,False,False
+NJD,['C'],36.0,False,False
+MTL,"['LW', 'RW']",36.0,False,False
+VAN,"['C', 'LW']",28.0,False,False
+ANA,['LW'],32.0,False,False
+SJS,"['LW', 'RW']",32.0,False,False
+TOR,['D'],35.0,False,False
+CBJ,['C'],35.0,False,False
+NYR,"['C', 'RW']",35.0,False,False
+PIT,[],35.0,False,False
+CAR,[],35.0,False,False
+CBJ,['C'],35.0,False,False
+SJS,['C'],36.0,False,False
+WSH,"['LW', 'RW']",36.0,False,False
+ANA,['C'],36.0,False,False
+NJD,"['C', 'LW']",18.0,False,False
+COL,"['LW', 'RW']",27.0,False,False
+SEA,['C'],33.0,False,False
+CHI,['C'],33.0,False,False
+PHI,"['LW', 'RW']",34.0,False,False
+CGY,['C'],36.0,False,False
+ANA,['D'],36.0,False,False
+VGK,['D'],31.0,False,False
+SEA,[],33.0,False,False
+OTT,[],35.0,False,False
+NSH,"['C', 'LW', 'RW']",35.0,False,False
+FLA,['D'],35.0,False,False
+VAN,['D'],35.0,False,False
+VAN,"['LW', 'RW']",35.0,False,False
+CGY,['RW'],35.0,False,False
+MTL,['D'],36.0,False,False
+DET,['C'],37.0,False,False
+NYR,"['LW', 'RW']",38.0,False,False
+BOS,['D'],25.0,False,False
+TBL,['C'],28.0,False,False
+VAN,[],29.0,False,False
+MIN,[],30.0,False,False
+CGY,"['C', 'LW']",31.0,False,False
+TBL,['C'],31.0,False,False
+PHI,['C'],33.0,False,False
+SEA,['D'],33.0,False,False
+SEA,[],33.0,False,False
+LAK,"['C', 'LW']",33.0,False,False
+PHI,"['LW', 'RW']",34.0,False,False
+COL,['D'],35.0,False,False
+NSH,[],35.0,False,False
+COL,"['LW', 'RW']",35.0,False,False
+BUF,['C'],35.0,False,False
+BUF,[],35.0,False,False
+SJS,[],35.0,False,False
+CGY,['C'],36.0,False,False
+NJD,['D'],36.0,False,False
+MTL,['C'],36.0,False,False
+STL,['D'],37.0,False,False
+STL,[],37.0,False,False
+MIN,['D'],37.0,False,False
+BUF,[],21.0,False,False
+EDM,['C'],24.0,False,False
+NYI,['C'],25.0,False,False
+OTT,['C'],27.0,False,False
+WSH,[],29.0,False,False
+NJD,['D'],31.0,False,False
+SEA,['C'],33.0,False,False
+VAN,['LW'],34.0,False,False
+PHI,[],34.0,False,False
+NSH,[],35.0,False,False
+COL,"['LW', 'RW']",35.0,False,False
+FLA,"['C', 'LW', 'RW']",35.0,False,False
+COL,['D'],35.0,False,False
+SJS,['D'],36.0,False,False
+CGY,[],36.0,False,False
+WSH,"['C', 'LW']",36.0,False,False
+NYI,"['LW', 'RW']",36.0,False,False
+DET,['C'],37.0,False,False
+NYR,"['LW', 'RW']",38.0,False,False
+NYR,['C'],24.0,False,False
+STL,"['LW', 'RW']",25.0,False,False
+DAL,"['C', 'RW']",27.0,False,False
+LAK,['C'],30.0,False,False
+VAN,"['LW', 'RW']",33.0,False,False
+STL,"['C', 'LW']",33.0,False,False
+MTL,['D'],34.0,False,False
+CHI,['C'],34.0,False,False
+PHI,[],34.0,False,False
+FLA,[],34.0,False,False
+PIT,['D'],35.0,False,False
+CAR,[],35.0,False,False
+CBJ,['C'],35.0,False,False
+PIT,['C'],35.0,False,False
+VAN,"['LW', 'RW']",35.0,False,False
+CGY,"['C', 'LW', 'RW']",36.0,False,False
+EDM,['D'],37.0,False,False
+DAL,['D'],37.0,False,False
+UTA,['D'],38.0,False,False
+OTT,"['C', 'LW']",15.0,False,False
+EDM,"['LW', 'RW']",18.0,False,False
+BUF,['LW'],22.0,False,False
+SEA,['D'],27.0,False,False
+STL,['RW'],28.0,False,False
+NYI,[],30.0,False,False
+NJD,[],32.0,False,False
+PHI,['D'],34.0,False,False
+PHI,['D'],34.0,False,False
+TOR,['C'],34.0,False,False
+OTT,[],35.0,False,False
+CAR,"['C', 'RW']",35.0,False,False
+VAN,['D'],35.0,False,False
+ANA,['D'],36.0,False,False
+NYI,['D'],36.0,False,False
+MTL,[],36.0,False,False
+EDM,"['LW', 'RW']",37.0,False,False
+NSH,['D'],23.0,False,False
+SEA,[],23.0,False,False
+SJS,['D'],27.0,False,False
+BOS,['C'],27.0,False,False
+LAK,[],28.0,False,False
+NJD,[],29.0,False,False
+SJS,['C'],31.0,False,False
+CAR,['C'],32.0,False,False
+MIN,"['C', 'RW']",33.0,False,False
+CHI,['D'],33.0,False,False
+LAK,[],34.0,False,False
+LAK,[],34.0,False,False
+CBJ,['C'],34.0,False,False
+LAK,['D'],34.0,False,False
+WPG,[],35.0,False,False
+TOR,['D'],35.0,False,False
+TBL,[],35.0,False,False
+OTT,[],35.0,False,False
+ANA,['D'],35.0,False,False
+DAL,['C'],36.0,False,False
+BOS,[],37.0,False,False
+UTA,"['LW', 'RW']",38.0,False,False
+MIN,[],17.0,False,False
+ANA,"['C', 'LW', 'RW']",18.0,False,False
+CBJ,"['C', 'LW']",21.0,False,False
+PIT,[],21.0,False,False
+VAN,['C'],21.0,False,False
+BOS,[],25.0,False,False
+DAL,['D'],25.0,False,False
+NSH,['D'],25.0,False,False
+PHI,['D'],27.0,False,False
+NYI,"['C', 'RW']",28.0,False,False
+NSH,[],28.0,False,False
+CBJ,[],30.0,False,False
+VAN,['C'],32.0,False,False
+PIT,['C'],32.0,False,False
+BUF,['D'],33.0,False,False
+TOR,[],33.0,False,False
+CHI,"['C', 'LW', 'RW']",35.0,False,False
+FLA,['D'],35.0,False,False
+FLA,[],35.0,False,False
+COL,"['C', 'LW']",35.0,False,False
+BOS,['C'],35.0,False,False
+STL,['C'],35.0,False,False
+BUF,['D'],35.0,False,False
+NYI,[],35.0,False,False
+STL,"['C', 'LW']",37.0,False,False
+EDM,['D'],37.0,False,False
+DET,['D'],37.0,False,False
+NYR,['D'],38.0,False,False
+DAL,[],18.0,False,False
+PHI,[],21.0,False,False
+WSH,['C'],25.0,False,False
+FLA,['C'],27.0,False,False
+CAR,['D'],28.0,False,False
+ANA,['C'],29.0,False,False
+BOS,['D'],32.0,False,False
+SEA,['C'],33.0,False,False
+LAK,['D'],34.0,False,False
+CAR,['D'],34.0,False,False
+CBJ,['D'],34.0,False,False
+WPG,['D'],35.0,False,False
+CBJ,['D'],35.0,False,False
+PIT,['D'],35.0,False,False
+WPG,[],35.0,False,False
+COL,['C'],35.0,False,False
+NYI,['D'],36.0,False,False
+UTA,[],36.0,False,False
+STL,['D'],37.0,False,False
+BOS,['D'],37.0,False,False
+BOS,"['C', 'RW']",37.0,False,False
+BOS,['C'],37.0,False,False
+PIT,"['C', 'LW', 'RW']",15.0,False,False
+MTL,['C'],17.0,False,False
+TBL,['D'],18.0,False,False
+OTT,['D'],20.0,False,False
+CBJ,[],28.0,False,False
+WPG,['C'],29.0,False,False
+MIN,[],30.0,False,False
+SJS,[],31.0,False,False
+TOR,['C'],33.0,False,False
+LAK,[],33.0,False,False
+TBL,['D'],33.0,False,False
+CHI,['D'],34.0,False,False
+OTT,['D'],34.0,False,False
+DET,['D'],34.0,False,False
+COL,['D'],35.0,False,False
+TBL,['C'],35.0,False,False
+NSH,['D'],35.0,False,False
+COL,['D'],35.0,False,False
+WPG,['D'],35.0,False,False
+VAN,[],35.0,False,False
+CHI,['C'],35.0,False,False
+MTL,[],36.0,False,False
+MTL,[],36.0,False,False
+NYI,[],36.0,False,False
+DAL,['C'],37.0,False,False
+STL,['D'],37.0,False,False
+DAL,['C'],37.0,False,False
+EDM,['C'],37.0,False,False
+UTA,['D'],38.0,False,False
+UTA,['D'],38.0,False,False
+VGK,[],19.0,False,False
+OTT,['D'],26.0,False,False
+STL,['RW'],26.0,False,False
+TOR,[],26.0,False,False
+TBL,['D'],28.0,False,False
+BOS,['D'],29.0,False,False
+VAN,['C'],29.0,False,False
+OTT,"['C', 'LW', 'RW']",30.0,False,False
+TOR,['C'],32.0,False,False
+CGY,['C'],32.0,False,False
+BOS,['C'],32.0,False,False
+CAR,[],33.0,False,False
+FLA,['D'],34.0,False,False
+CBJ,['C'],34.0,False,False
+CAR,['D'],35.0,False,False
+COL,['C'],35.0,False,False
+PIT,['C'],35.0,False,False
+BUF,['C'],35.0,False,False
+ANA,[],36.0,False,False
+CGY,['D'],36.0,False,False
+WSH,[],36.0,False,False
+WSH,['D'],36.0,False,False
+SJS,['C'],36.0,False,False
+DAL,['C'],36.0,False,False
+DET,[],37.0,False,False
+EDM,[],37.0,False,False
+NYR,['C'],38.0,False,False
+BUF,['C'],9.0,False,False
+EDM,['D'],17.0,False,False
+STL,[],18.0,False,False
+NYI,[],23.0,False,False
+VGK,['D'],24.0,False,False
+TOR,[],24.0,False,False
+LAK,['D'],27.0,False,False
+NSH,[],28.0,False,False
+STL,['C'],28.0,False,False
+CAR,[],29.0,False,False
+WSH,['D'],31.0,False,False
+MIN,['D'],32.0,False,False
+TOR,['C'],33.0,False,False
+CHI,[],33.0,False,False
+MTL,['C'],34.0,False,False
+CGY,['C'],34.0,False,False
+BUF,['D'],34.0,False,False
+CBJ,['D'],35.0,False,False
+ANA,[],35.0,False,False
+PIT,['D'],35.0,False,False
+NJD,['D'],36.0,False,False
+WSH,['D'],36.0,False,False
+NJD,[],36.0,False,False
+BOS,['C'],37.0,False,False
+STL,['D'],37.0,False,False
+UTA,['C'],38.0,False,False
+UTA,"['C', 'LW']",38.0,False,False
+BOS,['C'],20.0,False,False
+CBJ,[],23.0,False,False
+COL,['C'],23.0,False,False
+CHI,['C'],23.0,False,False
+PHI,['D'],24.0,False,False
+STL,[],25.0,False,False
+VAN,['D'],25.0,False,False
+UTA,[],26.0,False,False
+VGK,['D'],27.0,False,False
+DET,['C'],27.0,False,False
+TOR,['C'],28.0,False,False
+TBL,[],28.0,False,False
+LAK,[],29.0,False,False
+DET,[],30.0,False,False
+VGK,['C'],30.0,False,False
+DET,['C'],32.0,False,False
+ANA,['D'],32.0,False,False
+VAN,['C'],32.0,False,False
+ANA,['D'],33.0,False,False
+WPG,['C'],35.0,False,False
+DAL,['D'],35.0,False,False
+NYR,[],35.0,False,False
+WSH,[],35.0,False,False
+MTL,['D'],36.0,False,False
+EDM,['D'],36.0,False,False
+EDM,['C'],37.0,False,False
+SEA,"['C', 'LW']",11.0,False,False
+TBL,[],16.0,False,False
+TBL,['D'],17.0,False,False
+UTA,['D'],17.0,False,False
+SEA,['D'],19.0,False,False
+ANA,['C'],23.0,False,False
+BUF,['C'],24.0,False,False
+ANA,['D'],25.0,False,False
+NJD,['C'],25.0,False,False
+NYI,['C'],26.0,False,False
+CHI,['D'],28.0,False,False
+STL,[],31.0,False,False
+TBL,['C'],31.0,False,False
+NJD,['D'],32.0,False,False
+SEA,['D'],33.0,False,False
+UTA,['C'],33.0,False,False
+NSH,['C'],33.0,False,False
+OTT,['C'],34.0,False,False
+OTT,['D'],35.0,False,False
+WPG,['C'],35.0,False,False
+NYR,[],35.0,False,False
+CHI,['D'],35.0,False,False
+NYI,['C'],36.0,False,False
+MIN,['D'],37.0,False,False
+DET,['D'],37.0,False,False
+BOS,['D'],37.0,False,False
+BUF,[],13.0,False,False
+VGK,['C'],14.0,False,False
+MTL,['C'],15.0,False,False
+COL,['D'],20.0,False,False
+WPG,"['C', 'LW', 'RW']",21.0,False,False
+PIT,['C'],22.0,False,False
+MTL,[],22.0,False,False
+TBL,['C'],22.0,False,False
+DET,['C'],22.0,False,False
+SJS,[],23.0,False,False
+WPG,[],26.0,False,False
+DAL,['D'],26.0,False,False
+FLA,['D'],26.0,False,False
+NSH,['D'],27.0,False,False
+DAL,['C'],27.0,False,False
+STL,[],27.0,False,False
+WSH,['C'],28.0,False,False
+CAR,[],29.0,False,False
+MIN,['D'],30.0,False,False
+VGK,[],31.0,False,False
+EDM,['D'],32.0,False,False
+FLA,['D'],33.0,False,False
+LAK,['D'],34.0,False,False
+VAN,['D'],35.0,False,False
+DAL,['C'],35.0,False,False
+VAN,['D'],35.0,False,False
+FLA,['C'],35.0,False,False
+CGY,[],35.0,False,False
+NJD,[],36.0,False,False
+SJS,['D'],36.0,False,False
+CHI,[],15.0,False,False
+TBL,['D'],17.0,False,False
+ANA,['C'],18.0,False,False
+SJS,['D'],18.0,False,False
+CAR,['C'],19.0,False,False
+SEA,['C'],20.0,False,False
+EDM,['C'],21.0,False,False
+CHI,['C'],22.0,False,False
+WSH,[],22.0,False,False
+TOR,['D'],22.0,False,False
+CGY,['D'],22.0,False,False
+NYR,['C'],23.0,False,False
+SEA,[],23.0,False,False
+WPG,[],24.0,False,False
+BOS,['D'],25.0,False,False
+NSH,['D'],25.0,False,False
+LAK,[],26.0,False,False
+OTT,['C'],28.0,False,False
+TBL,['C'],28.0,False,False
+WPG,[],29.0,False,False
+NYR,['D'],29.0,False,False
+CBJ,[],29.0,False,False
+NJD,[],30.0,False,False
+WPG,['D'],31.0,False,False
+SEA,[],31.0,False,False
+NSH,['D'],32.0,False,False
+TBL,['D'],32.0,False,False
+BUF,['D'],33.0,False,False
+LAK,['C'],33.0,False,False
+LAK,['D'],34.0,False,False
+LAK,['D'],34.0,False,False
+NYR,['D'],34.0,False,False
+NSH,['C'],34.0,False,False
+VGK,['D'],34.0,False,False
+CHI,['D'],34.0,False,False
+CHI,['D'],35.0,False,False
+CBJ,['D'],35.0,False,False
+CGY,['D'],35.0,False,False
+CHI,['C'],35.0,False,False
+SJS,['C'],36.0,False,False
+ANA,[],36.0,False,False
+WSH,[],36.0,False,False
+NYR,['C'],38.0,False,False
+NYR,['D'],38.0,False,False
+BUF,['C'],12.0,False,False
+MIN,['C'],15.0,False,False
+NSH,[],16.0,False,False
+TOR,['C'],17.0,False,False
+SEA,[],17.0,False,False
+WPG,['D'],19.0,False,False
+VAN,[],19.0,False,False
+PIT,[],20.0,False,False
+SEA,['C'],21.0,False,False
+CAR,['D'],22.0,False,False
+ANA,['D'],22.0,False,False
+EDM,[],22.0,False,False
+WPG,['C'],23.0,False,False
+CAR,[],24.0,False,False
+MIN,['C'],24.0,False,False
+CAR,['D'],24.0,False,False
+STL,['C'],25.0,False,False
+NSH,['C'],25.0,False,False
+COL,['C'],25.0,False,False
+VAN,[],26.0,False,False
+WSH,['D'],27.0,False,False
+PHI,['D'],27.0,False,False
+PIT,['C'],27.0,False,False
+CAR,['D'],28.0,False,False
+MTL,['D'],28.0,False,False
+MTL,['C'],30.0,False,False
+SEA,['D'],31.0,False,False
+STL,['D'],32.0,False,False
+OTT,['D'],32.0,False,False
+SEA,['C'],32.0,False,False
+VAN,"['C', 'LW']",32.0,False,False
+CGY,['D'],33.0,False,False
+SEA,['D'],33.0,False,False
+WSH,['C'],33.0,False,False
+NYI,['D'],34.0,False,False
+BUF,[],34.0,False,False
+VGK,['D'],34.0,False,False
+CBJ,['C'],34.0,False,False
+FLA,['D'],35.0,False,False
+DET,['C'],36.0,False,False
+VAN,[],8.0,False,False
+PHI,[],8.0,False,False
+MTL,[],9.0,False,False
+DAL,"['C', 'RW']",12.0,False,False
+CBJ,['C'],12.0,False,False
+PIT,['C'],13.0,False,False
+DAL,[],15.0,False,False
+SEA,['C'],15.0,False,False
+NJD,['D'],16.0,False,False
+DAL,['D'],18.0,False,False
+CGY,[],18.0,False,False
+TBL,['D'],19.0,False,False
+NSH,['D'],19.0,False,False
+VGK,['D'],20.0,False,False
+TOR,['C'],22.0,False,False
+BUF,['D'],22.0,False,False
+PHI,[],23.0,False,False
+WPG,['D'],24.0,False,False
+NYR,['C'],24.0,False,False
+NSH,['C'],24.0,False,False
+BUF,['C'],24.0,False,False
+OTT,['D'],25.0,False,False
+VGK,[],26.0,False,False
+SJS,['D'],28.0,False,False
+VGK,[],31.0,False,False
+NYR,['D'],31.0,False,False
+PHI,['D'],34.0,False,False
+VGK,[],34.0,False,False
+NYI,['D'],36.0,False,False
+DET,['D'],37.0,False,False
+SJS,[],3.0,False,False
+DET,[],4.0,False,False
+NYR,[],5.0,False,False
+VAN,['C'],6.0,False,False
+TBL,[],7.0,False,False
+SJS,['C'],7.0,False,False
+FLA,[],10.0,False,False
+DAL,['D'],10.0,False,False
+PIT,['D'],11.0,False,False
+BOS,['D'],11.0,False,False
+UTA,[],11.0,False,False
+NJD,['D'],12.0,False,False
+TBL,['C'],12.0,False,False
+NSH,[],12.0,False,False
+OTT,['C'],12.0,False,False
+UTA,['D'],13.0,False,False
+SJS,['D'],14.0,False,False
+WSH,['D'],14.0,False,False
+NYR,['C'],14.0,False,False
+EDM,['C'],15.0,False,False
+EDM,[],17.0,False,False
+CBJ,[],18.0,False,False
+COL,[],18.0,False,False
+UTA,['C'],19.0,False,False
+DAL,[],19.0,False,False
+NYR,['D'],19.0,False,False
+BUF,[],20.0,False,False
+EDM,['D'],21.0,False,False
+CGY,['D'],21.0,False,False
+CGY,['C'],21.0,False,False
+NYI,['C'],22.0,False,False
+BUF,['C'],22.0,False,False
+VAN,[],22.0,False,False
+PIT,[],23.0,False,False
+DET,[],24.0,False,False
+DAL,['D'],26.0,False,False
+SJS,['D'],27.0,False,False
+VGK,['C'],30.0,False,False
+MTL,['C'],31.0,False,False
+CGY,[],32.0,False,False
+TOR,['D'],33.0,False,False
+CHI,['D'],35.0,False,False
+NJD,['C'],36.0,False,False
+EDM,['C'],36.0,False,False
+PHI,['C'],1.0,False,False
+SJS,[],2.0,False,False
+STL,[],3.0,False,False
+NYI,['D'],3.0,False,False
+STL,['C'],3.0,False,False
+STL,['C'],5.0,False,False
+BOS,['D'],5.0,False,False
+MTL,['D'],5.0,False,False
+EDM,[],6.0,False,False
+OTT,[],7.0,False,False
+CAR,[],7.0,False,False
+TOR,['D'],8.0,False,False
+VAN,[],8.0,False,False
+CAR,['D'],8.0,False,False
+FLA,[],10.0,False,False
+NYI,['C'],10.0,False,False
+PIT,[],11.0,False,False
+CBJ,['D'],12.0,False,False
+MIN,['D'],12.0,False,False
+FLA,['D'],12.0,False,False
+PIT,[],13.0,False,False
+NYR,['D'],13.0,False,False
+TBL,['D'],14.0,False,False
+ANA,['C'],15.0,False,False
+CGY,['D'],16.0,False,False
+MIN,['D'],17.0,False,False
+TOR,['D'],18.0,False,False
+SEA,['D'],18.0,False,False
+STL,['D'],18.0,False,False
+EDM,['C'],19.0,False,False
+NJD,['C'],19.0,False,False
+SJS,['D'],20.0,False,False
+FLA,[],21.0,False,False
+STL,[],21.0,False,False
+LAK,[],22.0,False,False
+STL,['D'],24.0,False,False
+FLA,['C'],25.0,False,False
+TBL,['C'],26.0,False,False
+MIN,[],27.0,False,False
+SJS,[],30.0,False,False
+MTL,['D'],32.0,False,False
+VGK,['D'],34.0,False,False
+PIT,['D'],35.0,False,False
+NJD,['D'],36.0,False,False
+UTA,['C'],1.0,False,False
+VAN,['C'],2.0,False,False
+UTA,['C'],2.0,False,False
+OTT,[],2.0,False,False
+CAR,['C'],2.0,False,False
+SEA,['C'],2.0,False,False
+CHI,['C'],3.0,False,False
+SJS,[],3.0,False,False
+MIN,['D'],3.0,False,False
+COL,['C'],3.0,False,False
+NSH,['C'],3.0,False,False
+EDM,[],3.0,False,False
+MIN,[],4.0,False,False
+BOS,[],4.0,False,False
+EDM,[],4.0,False,False
+SEA,['D'],4.0,False,False
+COL,['C'],4.0,False,False
+WPG,['C'],4.0,False,False
+CHI,[],4.0,False,False
+CGY,[],4.0,False,False
+MTL,[],5.0,False,False
+STL,[],5.0,False,False
+UTA,['D'],5.0,False,False
+MTL,[],5.0,False,False
+EDM,['C'],5.0,False,False
+COL,['D'],6.0,False,False
+SJS,[],6.0,False,False
+TBL,['C'],6.0,False,False
+PIT,['D'],7.0,False,False
+ANA,[],7.0,False,False
+TBL,['D'],8.0,False,False
+NJD,['C'],8.0,False,False
+BOS,['D'],8.0,False,False
+CGY,['C'],9.0,False,False
+PIT,[],9.0,False,False
+MTL,['C'],9.0,False,False
+NJD,[],9.0,False,False
+NYI,['D'],9.0,False,False
+DET,[],9.0,False,False
+PIT,['D'],9.0,False,False
+PIT,[],10.0,False,False
+CHI,[],10.0,False,False
+MTL,['C'],10.0,False,False
+TOR,['D'],11.0,False,False
+VAN,['D'],11.0,False,False
+WPG,['C'],11.0,False,False
+CGY,['D'],11.0,False,False
+NYI,['D'],12.0,False,False
+SJS,['D'],12.0,False,False
+CBJ,['C'],12.0,False,False
+PHI,['D'],13.0,False,False
+NYR,['C'],13.0,False,False
+OTT,[],14.0,False,False
+CHI,['C'],14.0,False,False
+SJS,['C'],14.0,False,False
+NJD,['D'],15.0,False,False
+VAN,['C'],15.0,False,False
+NYI,['D'],15.0,False,False
+TOR,['D'],16.0,False,False
+PIT,['D'],17.0,False,False
+DET,['D'],19.0,False,False
+UTA,['D'],19.0,False,False
+CBJ,['D'],19.0,False,False
+BOS,['D'],19.0,False,False
+DET,['D'],21.0,False,False
+NYI,[],21.0,False,False
+MIN,['C'],23.0,False,False
+UTA,['D'],24.0,False,False
+UTA,[],29.0,False,False
+VAN,['C'],1.0,False,False
+DET,['D'],1.0,False,False
+CBJ,['D'],1.0,False,False
+OTT,['D'],1.0,False,False
+CAR,['D'],1.0,False,False
+TBL,[],1.0,False,False
+NJD,[],1.0,False,False
+STL,['D'],1.0,False,False
+BUF,['C'],1.0,False,False
+CGY,['D'],1.0,False,False
+PIT,['C'],1.0,False,False
+MIN,['D'],1.0,False,False
+NJD,[],1.0,False,False
+BOS,['C'],1.0,False,False
+FLA,['D'],2.0,False,False
+UTA,[],2.0,False,False
+VAN,['D'],2.0,False,False
+PIT,[],2.0,False,False
+CGY,[],2.0,False,False
+EDM,['D'],2.0,False,False
+EDM,[],2.0,False,False
+WSH,[],2.0,False,False
+CGY,['C'],2.0,False,False
+VAN,['C'],2.0,False,False
+CHI,['D'],2.0,False,False
+NJD,['D'],2.0,False,False
+MIN,['C'],2.0,False,False
+NSH,[],2.0,False,False
+WSH,[],2.0,False,False
+COL,[],2.0,False,False
+TOR,['C'],2.0,False,False
+SEA,['C'],3.0,False,False
+PHI,['D'],3.0,False,False
+TBL,[],3.0,False,False
+NJD,[],3.0,False,False
+PIT,['D'],3.0,False,False
+BUF,['D'],3.0,False,False
+PHI,['C'],3.0,False,False
+MTL,[],3.0,False,False
+PHI,['D'],3.0,False,False
+COL,[],3.0,False,False
+CBJ,['C'],3.0,False,False
+CGY,['C'],3.0,False,False
+VAN,['C'],3.0,False,False
+CBJ,['D'],4.0,False,False
+WSH,['D'],4.0,False,False
+BUF,[],4.0,False,False
+TOR,['D'],4.0,False,False
+BOS,[],4.0,False,False
+NYR,[],4.0,False,False
+SEA,[],4.0,False,False
+PIT,['D'],4.0,False,False
+WPG,['D'],4.0,False,False
+PHI,['C'],4.0,False,False
+NJD,[],5.0,False,False
+CAR,['D'],5.0,False,False
+BUF,[],5.0,False,False
+BOS,['D'],5.0,False,False
+PHI,['D'],5.0,False,False
+VAN,[],5.0,False,False
+STL,['C'],5.0,False,False
+VAN,['D'],5.0,False,False
+NJD,['C'],5.0,False,False
+CGY,['D'],5.0,False,False
+WSH,[],6.0,False,False
+NYR,[],6.0,False,False
+FLA,[],6.0,False,False
+BUF,['D'],6.0,False,False
+TBL,[],7.0,False,False
+LAK,['C'],7.0,False,False
+LAK,['D'],8.0,False,False
+VGK,[],8.0,False,False
+WPG,[],8.0,False,False
+OTT,[],9.0,False,False
+FLA,['C'],9.0,False,False
+COL,['D'],9.0,False,False
+MTL,['D'],9.0,False,False
+BOS,[],10.0,False,False
+WPG,['D'],11.0,False,False
+NYR,[],11.0,False,False
+BUF,['D'],12.0,False,False
+PIT,['D'],15.0,False,False
+PHI,[],16.0,False,False
+WPG,['D'],16.0,False,False
+MIN,['D'],18.0,False,False
+MIN,['C'],20.0,False,False
+PHI,[],33.0,False,False
+UTA,['G'],29.0,False,False
+COL,[],22.0,False,False
+FLA,[],24.0,False,False
+NYR,[],29.0,False,False
+BOS,[],25.0,False,False
+WSH,[],25.0,False,False
+OTT,[],26.0,False,False
+ANA,[],21.0,False,False
+NSH,['G'],27.0,False,False
+EDM,['G'],17.0,False,False
+PHI,[],20.0,False,False
+MTL,['G'],20.0,False,False
+TBL,[],21.0,False,False
+SJS,['G'],22.0,False,False
+MIN,[],23.0,False,False
+NYI,['G'],24.0,False,False
+CAR,[],13.0,False,False
+COL,[],14.0,False,False
+VGK,[],18.0,False,False
+DET,['G'],20.0,False,False
+PIT,[],25.0,False,False
+CGY,[],27.0,False,False
+MIN,[],14.0,False,False
+NJD,[],19.0,False,False
+DET,['G'],19.0,False,False
+LAK,['G'],23.0,False,False
+CHI,[],24.0,False,False
+DAL,[],13.0,False,False
+NJD,[],18.0,False,False
+WPG,[],19.0,False,False
+SEA,['G'],22.0,False,False
+VAN,[],14.0,False,False
+BUF,['G'],19.0,False,False
+CBJ,[],22.0,False,False
+NYI,['G'],12.0,False,False
+TBL,['G'],15.0,False,False
+STL,['G'],20.0,False,False
+STL,[],22.0,False,False
+CAR,[],9.0,False,False
+TOR,['G'],13.0,False,False
+BOS,['G'],14.0,False,False
+CBJ,['G'],14.0,False,False
+WPG,['G'],15.0,False,False
+ANA,['G'],9.0,False,False
+TOR,[],10.0,False,False
+BUF,['G'],11.0,False,False
+LAK,['G'],12.0,False,False
+WSH,['G'],12.0,False,False
+PHI,['G'],13.0,False,False
+CAR,['G'],14.0,False,False
+MTL,['G'],15.0,False,False
+SJS,['G'],16.0,False,False
+PIT,['G'],16.0,False,False
+VAN,[],18.0,False,False
+BUF,['G'],8.0,False,False
+OTT,['G'],9.0,False,False
+SEA,['G'],10.0,False,False
+FLA,['G'],12.0,False,False
+CGY,['G'],13.0,False,False
+VGK,[],6.0,False,False
+ANA,['G'],8.0,False,False
+NYR,['G'],9.0,False,False
+CHI,['G'],11.0,False,False
+EDM,['G'],13.0,False,False
+TOR,['G'],3.0,False,False
+MTL,[],4.0,False,False
+VAN,['G'],4.0,False,False
+UTA,['G'],10.0,False,False
+NSH,['G'],11.0,False,False
+TOR,[],13.0,False,False
+EDM,['G'],1.0,False,False
+NJD,['G'],1.0,False,False
+VGK,['G'],5.0,False,False
+PIT,['G'],5.0,False,False
+VGK,['G'],7.0,False,False
+VAN,['G'],1.0,False,False
+TOR,['G'],1.0,False,False
+ANA,['G'],1.0,False,False
+COL,['G'],2.0,False,False
+PHI,['G'],2.0,False,False
+WPG,['G'],3.0,False,False
+SEA,['G'],5.0,False,False

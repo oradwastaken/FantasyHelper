@@ -1,0 +1,20 @@
+I have answers to your questions in-line below. Before that, I have a few other comments:
+
+* Let's have a config.yaml file where we can set many of these values (for example, the hard-coded league-ID, the number of roster spots for each position, which weeks correspond to the playoff weeks, etc.) Pre-populate it with guesses and I'll update them as I figure them out.
+* In addition to the rankings, I want a table that shows every team and their strengths and weakness. (E.g., McJesus takes the wheel is strongest at G, 2nd strongest at A, etc). Perhaps this could also be in terms of a ranking.
+* I am not sure I treated dual-eligible players appropriately in the repo. Please check on that implementation as well.
+
+Here are the answers to your questions:
+1. It should be a configurable combination of a projections sheet and the historical NHL totals. The projections sheet should be linked somewhere -- we will update it with the new one when it comes up.
+
+2. Dual-eligible players should appear in every eligible position. That said, their value will change based on how rare a player of their skill is for that position, so I expect the ranking to be different for different positions.
+
+3. One ranking for every one of the 15 categories.
+
+4. I'm not sure. My initial thought was z-score vs the drafter player pool. Is that the best method? Also, all 15 categories are equally weighted in terms of "points", but some are easier to come by than others.
+
+5. Let's say 15 gp minimum. This value should be settable in the config file.
+
+6. I don't know these things yet. Make an educated guess. My team name is "Slaffing From The Throne".
+
+7. New google sheet.

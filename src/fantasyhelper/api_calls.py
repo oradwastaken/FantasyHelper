@@ -98,6 +98,61 @@ def fetch_goalie_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
     return df_stats
 
 
+def _date_range_expression(season: str, start_date: str, end_date: str) -> str:
+    """Build an NHL Stats API filter for inclusive regular-season dates."""
+    return (
+        f'gameTypeId=2 and seasonId={season} and gameDate>="{start_date}" '
+        f'and gameDate<="{end_date} 23:59:59"'
+    )
+
+
+def fetch_skater_stats_for_dates(season: str, start_date: str, end_date: str) -> pd.DataFrame:
+    """Fetch all skater stats accumulated within an inclusive date window."""
+    query_context = QueryContext(
+        query=_date_range_expression(season, start_date, end_date), filters=[], fact_query="gamesPlayed>=1"
+    )
+    report_types = ["summary", "realtime", "bios", "faceoffwins"]
+    frames = []
+    for report_type in report_types:
+        pages = []
+        for page in count(start=1):
+            response = client.stats.skater_stats_with_query_context(
+                report_type=report_type, query_context=query_context, start=100 * (page - 1) + 1, limit=100
+            )
+            data = pd.json_normalize(pd.DataFrame(response)["data"])
+            if data.empty:
+                break
+            pages.append(data)
+        if pages:
+            frame = pd.concat(pages, ignore_index=True)
+            frame.set_index("playerId", inplace=True)
+            frames.append(frame)
+    if not frames:
+        return pd.DataFrame()
+    result = pd.concat(frames, axis=1)
+    return result.loc[:, ~result.columns.duplicated()].copy()
+
+
+def fetch_goalie_stats_for_dates(season: str, start_date: str, end_date: str) -> pd.DataFrame:
+    """Fetch all goalie stats accumulated within an inclusive date window."""
+    pages = []
+    expression = _date_range_expression(season, start_date, end_date)
+    for page in count(start=1):
+        response = client.stats.goalie_stats_summary(
+            stats_type="summary", start_season=season, end_season=season, game_type_id=2,
+            start=100 * (page - 1) + 1, limit=100, default_cayenne_exp=expression,
+        )
+        data = pd.DataFrame(response)
+        if data.empty:
+            break
+        pages.append(data)
+    if not pages:
+        return pd.DataFrame()
+    result = pd.concat(pages, ignore_index=True)
+    result.set_index("playerId", inplace=True)
+    return result
+
+
 def fetch_fantasy_rosters(league_id: str = LEAGUE_ID):
     league = League(ctx, league_id)
 
