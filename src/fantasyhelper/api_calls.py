@@ -7,12 +7,10 @@ from nhlpy.api.query.builder import QueryBuilder, QueryContext
 from nhlpy.api.query.filters.game_type import GameTypeQuery
 from nhlpy.api.query.filters.season import SeasonQuery
 from nhlpy.nhl_client import NHLClient
-from yahoofantasy import Context, League
 
 from fantasyhelper.dates import get_current_season
 
 client = NHLClient()
-ctx = Context()
 
 CURRENT_SEASON = get_current_season()
 LEAGUE_ID = "465.l.6920"  # For Keeps Mk-XII 2025-2026 season
@@ -154,6 +152,12 @@ def fetch_goalie_stats_for_dates(season: str, start_date: str, end_date: str) ->
 
 
 def fetch_fantasy_rosters(league_id: str = LEAGUE_ID):
+    # Creating a Yahoo Context checks for Yahoo login credentials.  Keep that
+    # side effect inside the Yahoo-only path so NHL stats refreshes do not
+    # require Yahoo authorization.
+    from yahoofantasy import Context, League
+
+    ctx = Context()
     league = League(ctx, league_id)
 
     records = []
@@ -178,6 +182,9 @@ def fetch_fantasy_rosters(league_id: str = LEAGUE_ID):
 
 
 def fetch_league_ids(year: int = CURRENT_SEASON[:4]):
+    from yahoofantasy import Context
+
+    ctx = Context()
     leagues = ctx.get_leagues("nhl", year)
     for league in leagues:
         print(league, league.id)
