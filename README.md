@@ -57,6 +57,21 @@ credentials path and run `uv run --no-editable fantasyhelper build --with-projec
 opens a browser sign-in flow. Publish all reports to a new (or configured existing) Google
 Sheet with `uv run --no-editable fantasyhelper publish --with-projections`.
 
+## 2026–27 schedule references
+
+The repository includes planning material for the 2026–27 NHL season:
+
+- `2026-27 NHL schedule sheet.xlsx` is the source planning workbook, including
+  off-night, playoff, streaming-value, back-to-back, weekly-matrix, and planner
+  views.
+- `Schedule.csv` is a compact weekly games-by-team matrix (weeks 1–28) for quick
+  reference or import into a spreadsheet.
+- `access_blocked.png` and `error.png` preserve the Google OAuth access-denied
+  and Windows checkout errors encountered while setting up the project.
+
+These are reference artifacts; the command-line workflow fetches schedule data from
+the NHL API using the date range in `config.yaml`.
+
 ## Sync Yahoo rosters to Google Sheets
 
 The roster updater fetches every player on the configured Yahoo league's rosters and
