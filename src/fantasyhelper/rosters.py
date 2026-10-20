@@ -81,12 +81,13 @@ def build_roster_update(
     sheet_player_names: Sequence[object],
     yahoo_rosters: pd.DataFrame,
     manager_aliases: Mapping[str, str] | None = None,
+    approved_managers: Sequence[str] | None = None,
 ) -> RosterUpdate:
     """Assign each sheet player to a manager, or ``Undrafted``.
 
     ``manager_aliases`` maps Yahoo manager names (or Yahoo fantasy-team names) to
-    the exact data-validation values used by the worksheet.  Managers that already
-    use the worksheet value need no entry.
+    the exact data-validation values used by the worksheet. ``approved_managers``
+    lists worksheet values which Yahoo manager nicknames may use directly.
     """
     required = {"FullName", "manager", "fantasy_team"}
     missing = required.difference(yahoo_rosters.columns)
@@ -94,6 +95,7 @@ def build_roster_update(
         raise ValueError(f"Yahoo roster data is missing columns: {', '.join(sorted(missing))}")
 
     aliases = dict(manager_aliases or {})
+    approved = set(approved_managers) if approved_managers is not None else None
     assignments: dict[str, set[str]] = {}
     yahoo_names: set[str] = set()
     for row in yahoo_rosters.itertuples(index=False):
@@ -105,7 +107,16 @@ def build_roster_update(
         # IR players are deliberately assigned to the sheet's dedicated IR
         # value instead of their Yahoo manager, so they are out of roster totals
         # and cannot be considered pickup candidates.
-        owner = "IR" if bool(getattr(row, "is_ir", False)) else aliases.get(manager, aliases.get(team, manager))
+        resolved_owner = aliases.get(manager, aliases.get(team))
+        if resolved_owner is None and (approved is None or manager in approved):
+            resolved_owner = manager
+        if resolved_owner is None:
+            raise ValueError(
+                f"Unrecognized Yahoo team name {team!r}. A manager likely renamed their team; "
+                "add the mapping to roster_sync.manager_aliases in config.yaml. If an agent is "
+                "running this, infer the matching approved manager and update the config."
+            )
+        owner = "IR" if bool(getattr(row, "is_ir", False)) else resolved_owner
         key = _normalise_name(name)
         assignments.setdefault(key, set()).add(owner)
         yahoo_names.add(key)

@@ -89,7 +89,9 @@ uv run --no-editable fantasyhelper --updateroster
 `config.yaml` contains the target spreadsheet ID and the source/target columns. If a
 Yahoo manager nickname differs from the worksheet's validation value, add it under
 `roster_sync.manager_aliases`; keys may be either Yahoo manager nicknames or fantasy
-team names. For example:
+team names. `roster_sync.approved_managers` lists all permitted worksheet values. An
+unmapped team name stops the update before the sheet is changed, so add its manager
+mapping before retrying. For example:
 
 ```yaml
 roster_sync:

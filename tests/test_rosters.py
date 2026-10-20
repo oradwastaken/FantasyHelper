@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from fantasyhelper.rosters import build_roster_update, fetch_local_rosters
 
@@ -28,6 +29,15 @@ def test_build_roster_update_does_not_guess_when_two_owners_claim_a_player():
 
     assert update.values == [["Undrafted"]]
     assert update.ambiguous_sheet_players == ["Alex Smith"]
+
+
+def test_build_roster_update_rejects_an_unrecognized_yahoo_team_name():
+    rosters = pd.DataFrame(
+        {"FullName": ["Alex Smith"], "manager": ["A New Name"], "fantasy_team": ["A New Name"]}
+    )
+
+    with pytest.raises(ValueError, match="Unrecognized Yahoo team name 'A New Name'"):
+        build_roster_update(["Alex Smith"], rosters, {"Phil": "Phil"}, ["Phil"])
 
 
 def test_fetch_local_rosters_parses_yahoo_team_tables(tmp_path):

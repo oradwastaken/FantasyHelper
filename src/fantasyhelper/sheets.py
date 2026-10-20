@@ -81,7 +81,12 @@ def _apply_rosters(config: dict, yahoo_rosters: pd.DataFrame) -> RosterUpdate:
     # gspread omits trailing empty rows from ``get``; retain the full target range
     # so stale owner values are also reset to Undrafted.
     sheet_names.extend([""] * (row_count - len(sheet_names)))
-    result = build_roster_update(sheet_names, yahoo_rosters, roster.get("manager_aliases"))
+    result = build_roster_update(
+        sheet_names,
+        yahoo_rosters,
+        roster.get("manager_aliases"),
+        roster.get("approved_managers"),
+    )
     worksheet.update(result.values, f"{owner_column}{first_row}:{owner_column}{last_row}")
     return result
 

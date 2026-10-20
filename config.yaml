@@ -40,6 +40,8 @@ roster_sync:
   first_data_row: 3
   last_data_row: 783
   local_html_glob: "roster_site/*.html"
+  # These are the exact allowed values in Player Values - Cats column D.
+  approved_managers: ["Rob/Orad", Henry, Jeremy, Ilan, Harley, Ryan, Lev, Phil]
   # Map a Yahoo manager nickname or fantasy-team name when it differs from the
   # worksheet's data-validation value.
   manager_aliases:
