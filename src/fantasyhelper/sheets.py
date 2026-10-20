@@ -8,6 +8,7 @@ import gspread
 import pandas as pd
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from google.auth.exceptions import RefreshError
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 from fantasyhelper.rosters import RosterUpdate, build_roster_update, fetch_local_rosters
@@ -21,7 +22,12 @@ def get_gspread_client(credentials_path: str, token_path: str) -> gspread.Client
     token_file = Path(token_path)
     credentials = Credentials.from_authorized_user_file(token_file, SCOPES) if token_file.exists() else None
     if credentials and credentials.expired and credentials.refresh_token:
-        credentials.refresh(Request())
+        try:
+            credentials.refresh(Request())
+        except RefreshError:
+            # A revoked refresh token should lead to the normal interactive
+            # authorization flow, rather than making every update fail.
+            credentials = None
     if not credentials or not credentials.valid:
         if not credentials_file.exists():
             raise FileNotFoundError(f"Google OAuth client file not found: {credentials_file}")
