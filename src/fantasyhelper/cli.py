@@ -47,7 +47,7 @@ def main() -> None:
         return
     if args.command in ("update-roster", "update-roster-local"):
         result = update_rosters_from_local_html(config) if args.command == "update-roster-local" else update_rosters(config)
-        print(f"Updated {result.matched_players} rostered players; set all other sheet players to Undrafted.")
+        print(f"Updated {result.matched_players} rostered or IR players; set all other sheet players to Undrafted.")
         if result.yahoo_players_not_on_sheet:
             print("Yahoo players not found on the sheet: " + ", ".join(result.yahoo_players_not_on_sheet))
         if result.ambiguous_sheet_players:

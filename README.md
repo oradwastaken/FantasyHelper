@@ -75,9 +75,10 @@ the NHL API using the date range in `config.yaml`.
 ## Sync Yahoo rosters to Google Sheets
 
 The roster updater fetches every player on the configured Yahoo league's rosters and
-writes their owner to `Player Values - Cats!D3:D783`.  It sets sheet players absent
-from Yahoo rosters to `Undrafted`, while preserving the sheet's validation, formatting,
-and formulas.
+writes their owner to `Player Values - Cats!D3:D783`. It writes `IR` for players in an
+injured-reserve slot or carrying Yahoo's injured-reserve status, and sets sheet players
+absent from Yahoo rosters to `Undrafted`, while preserving the sheet's validation,
+formatting, and formulas. Ensure `IR` is an allowed value in the column D data validation.
 
 ```bash
 uv sync --no-editable --reinstall-package fantasyhelper

@@ -39,6 +39,21 @@ def test_fetch_local_rosters_parses_yahoo_team_tables(tmp_path):
     rosters = fetch_local_rosters(str(page))
 
     assert rosters.to_dict("records") == [
-        {"FullName": "Robert Thomas", "manager": "Slafter Revenge", "fantasy_team": "Slafter Revenge"},
-        {"FullName": "Wyatt Johnston", "manager": "Slafter Revenge", "fantasy_team": "Slafter Revenge"},
+        {"FullName": "Robert Thomas", "manager": "Slafter Revenge", "fantasy_team": "Slafter Revenge", "is_ir": False},
+        {"FullName": "Wyatt Johnston", "manager": "Slafter Revenge", "fantasy_team": "Slafter Revenge", "is_ir": False},
     ]
+
+
+def test_fetch_local_rosters_marks_ir_slot_and_status_as_ir(tmp_path):
+    page = tmp_path / "rosters.html"
+    page.write_text('''<div><p><a href="/hockey/5325/1">Slafter Revenge</a></p>
+    <table id="Tst-team-1">
+    <tr><td class="pos first">IR+</td><td><a class="Nowrap name F-link playernote" title="Brock Faber">Brock Faber</a></td></tr>
+    <tr><td class="pos first">BN</td><td><a class="Nowrap name F-link playernote" title="Connor Bedard">Connor Bedard</a><span title="Injured Reserve – Non-Roster">IR-NR</span></td></tr>
+    </table>''')
+
+    rosters = fetch_local_rosters(str(page))
+
+    assert rosters["is_ir"].tolist() == [True, True]
+    update = build_roster_update(["Brock Faber", "Connor Bedard"], rosters)
+    assert update.values == [["IR"], ["IR"]]

@@ -18,6 +18,9 @@ _TEAM_TABLE = re.compile(
 _PLAYER_NAME = re.compile(
     r'<a[^>]*class="Nowrap name [^"]*"[^>]*title="([^"]+)"'
 )
+_ROSTER_ROW = re.compile(r"<tr\b[^>]*>(?P<row>.*?)</tr>", re.DOTALL | re.IGNORECASE)
+_IR_SLOT = re.compile(r'<td[^>]*class="[^"]*\bpos\b[^"]*"[^>]*>\s*IR\+?\s*</td>', re.IGNORECASE)
+_IR_STATUS = re.compile(r'title="Injured Reserve(?:\s*[^\"]*)?"', re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -49,9 +52,20 @@ def fetch_local_rosters(path_pattern: str) -> pd.DataFrame:
     records = []
     for match in _TEAM_TABLE.finditer(html):
         team = unescape(match.group("team")).strip()
-        names = _PLAYER_NAME.findall(match.group("table"))
-        for name in names:
-            records.append({"FullName": unescape(name), "manager": team, "fantasy_team": team})
+        rows = [row.group("row") for row in _ROSTER_ROW.finditer(match.group("table"))]
+        # Keep accepting the compact HTML used in older saved pages and tests.
+        for row_html in rows or [match.group("table")]:
+            names = _PLAYER_NAME.findall(row_html)
+            is_ir = bool(_IR_SLOT.search(row_html) or _IR_STATUS.search(row_html))
+            for name in names:
+                records.append(
+                    {
+                        "FullName": unescape(name),
+                        "manager": team,
+                        "fantasy_team": team,
+                        "is_ir": is_ir,
+                    }
+                )
     if not records:
         raise ValueError(f"No Yahoo roster tables were found in {source}")
     return pd.DataFrame(records)
@@ -88,7 +102,10 @@ def build_roster_update(
             continue
         manager = str(row.manager).strip()
         team = str(row.fantasy_team).strip()
-        owner = aliases.get(manager, aliases.get(team, manager))
+        # IR players are deliberately assigned to the sheet's dedicated IR
+        # value instead of their Yahoo manager, so they are out of roster totals
+        # and cannot be considered pickup candidates.
+        owner = "IR" if bool(getattr(row, "is_ir", False)) else aliases.get(manager, aliases.get(team, manager))
         key = _normalise_name(name)
         assignments.setdefault(key, set()).add(owner)
         yahoo_names.add(key)

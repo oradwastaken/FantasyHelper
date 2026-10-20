@@ -164,6 +164,8 @@ def fetch_fantasy_rosters(league_id: str = LEAGUE_ID):
     for fantasy_team in league.teams():
         for player in fantasy_team.players():
             pos_dict = ast.literal_eval(str(player.eligible_positions))
+            selected_position = getattr(getattr(player, "selected_position", None), "position", "")
+            status = str(getattr(player, "status", ""))
             records.append(
                 {
                     "fantasy_team": fantasy_team.name,
@@ -174,6 +176,10 @@ def fetch_fantasy_rosters(league_id: str = LEAGUE_ID):
                     "team": player.editorial_team_abbr,
                     "player_id_yahoo": player.player_id,
                     "position": pos_dict["position"],
+                    # Yahoo exposes the current roster slot through the API.
+                    # Keep this in the common roster frame so sheet syncing can
+                    # assign injured-reserve players to its IR value.
+                    "is_ir": str(selected_position).upper().startswith("IR") or status.upper().startswith("IR"),
                 }
             )
 
