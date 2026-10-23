@@ -66,3 +66,15 @@ season_stats_sync:
   header_row: 2
   first_data_row: 3
   last_data_row: 782
+schedule_sync:
+  local_workbook: "Slafter Revenge.xlsx"
+  worksheet: Schedule
+  h2h_worksheet: H2H
+  player_values_worksheet: "Player Values - Cats"
+  player_remaining_games_column: AT
+  matchup_week_cell: E37
+  timezone: America/Toronto
+  first_roster_row: 3
+  first_roster_last_row: 35
+  second_roster_row: 39
+  second_roster_last_row: 71

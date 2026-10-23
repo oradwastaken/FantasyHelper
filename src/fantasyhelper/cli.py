@@ -9,27 +9,33 @@ from fantasyhelper.data_sources import load_projection_sheet
 from fantasyhelper.pipeline import build_reports, write_reports
 from fantasyhelper.sheets import publish_reports, update_rosters, update_rosters_from_local_html
 from fantasyhelper.season_stats import update_season_stats
+from fantasyhelper.schedule_sync import update_schedule
 from fantasyhelper.stats import update_data
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build fantasy hockey reports")
-    parser.add_argument("command", nargs="?", choices=("update-data", "build", "publish", "update-roster", "update-roster-local", "update-stats"))
+    parser.add_argument("command", nargs="?", choices=("update-data", "build", "publish", "update-roster", "update-roster-local", "update-stats", "update-schedule"))
     parser.add_argument("--updateroster", action="store_true", help="Fetch Yahoo rosters and update the configured Google Sheet")
     parser.add_argument("--updaterosterlocal", action="store_true", help="Use a saved Yahoo roster HTML page to update the configured Google Sheet")
     parser.add_argument("--updatestats", action="store_true", help="Fetch NHL season stats and update Stats (Season) z-scores")
+    parser.add_argument("--updateschedule", action="store_true", help="Update Schedule and H2H remaining games from the local workbook")
     parser.add_argument("--config", default="config.yaml")
     parser.add_argument("--data", default="nhl_data.h5")
     parser.add_argument("--output", default="data/reports")
     parser.add_argument("--with-projections", action="store_true", help="Load the configured Google projections tab")
     args = parser.parse_args()
-    update_flags = sum((args.updateroster, args.updaterosterlocal, args.updatestats))
+    update_flags = sum((args.updateroster, args.updaterosterlocal, args.updatestats, args.updateschedule))
     if update_flags > 1:
         parser.error("choose only one sheet update flag")
     if args.updatestats:
         if args.command and args.command != "update-stats":
             parser.error("the stats update flag cannot be combined with another command")
         args.command = "update-stats"
+    if args.updateschedule:
+        if args.command and args.command != "update-schedule":
+            parser.error("the schedule update flag cannot be combined with another command")
+        args.command = "update-schedule"
     if args.updateroster or args.updaterosterlocal:
         requested_command = "update-roster-local" if args.updaterosterlocal else "update-roster"
         if args.command and args.command != requested_command:
@@ -59,6 +65,10 @@ def main() -> None:
               f"and {result.recent_players_with_nhl_stats} in Stats (Last 2 weeks). "
               f"NHL players not on the sheet: season={result.season_unmatched_nhl_players}, "
               f"last-two-weeks={result.recent_unmatched_nhl_players}.")
+        return
+    if args.command == "update-schedule":
+        result = update_schedule(config)
+        print(f"Updated Schedule and H2H for week {result.matchup_week}: games remaining from {result.as_of_date:%Y-%m-%d} through {result.end_date:%Y-%m-%d} for {result.teams_updated} teams.")
         return
     projections = None
     if args.with_projections:

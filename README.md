@@ -144,3 +144,20 @@ shutouts are standardized from per-start rates, while GAA and SV% are already ra
 GAA is inverted so lower is better. The recent sheet uses the inclusive 14-calendar-day
 window ending today. `OFF` and `POG` remain blank because they are projection-only
 fields rather than NHL API stats.
+
+## Refresh matchup games remaining
+
+After downloading the current `Slafter Revenge.xlsx` into the project root, run:
+
+```bash
+uv run --no-editable fantasyhelper updateschedule
+# equivalent: uv run --no-editable fantasyhelper update-schedule
+```
+
+The command copies its `Schedule` tab into the Google Sheet and creates a complete
+per-team, per-day schedule matrix there. Its `Games remaining this week` column is a
+sheet formula, so it automatically excludes past dates while retaining games scheduled
+today. `H2H` column W looks up that live total.
+
+The H2H `Pick up:` dropdown is sourced from `Available!A:A` and is sorted by the
+player's `Δ Matchup Win %` after the H2H pickup calculation runs.

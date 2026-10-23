@@ -2,12 +2,16 @@
     SpreadsheetApp.getUi()
       .createMenu('Fantasy Helper')
       .addItem(
-        'Recalculate undrafted player rankings',
+        'Calculate undrafted player rankings',
         'rankAllUndraftedPlayers'
       )
       .addItem(
-        'Recalculate all player rankings',
+        'Calculate all player rankings',
         'rankAllPlayers'
+      )
+      .addItem(
+        'Calculate H2H pickup values',
+        'calculateH2HPickupValues'
       )
       .addItem(
         'Stop calculating player rankings',
@@ -417,4 +421,263 @@
 
     properties.deleteProperty('STOP_RANKINGS');
     stopCell.setValue(false);
+  }
+
+  /**
+   * AR: added expected categories won this week.
+   * AS: added probability of winning the full 14-category matchup this week.
+   *
+   * The matchup calculation assumes category outcomes are independent. A 7-7
+   * result is counted as half a matchup win.
+   */
+  function calculateH2HPickupValues() {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const players = ss.getSheetByName('Player Values - Cats');
+    const h2h = ss.getSheetByName('H2H');
+    const schedule = ss.getSheetByName('Schedule');
+
+    if (!players || !h2h || !schedule) {
+      throw new Error(
+        'Expected Player Values - Cats, H2H, and Schedule sheets.'
+      );
+    }
+
+    const sourceCategoryNames = [
+      'G', 'A', '+/-', 'PIM', 'PPP', 'SHP', 'SOG',
+      'FOW', 'HIT', 'BLK', 'W', 'GAA', 'SV%', 'SO'
+    ];
+    const rateCategoryIndexes = new Set([11, 12]); // GAA and SV%
+    const firstDataRow = 3;
+    const lastPlayerRow = players.getLastRow();
+
+    const normalize = value => String(value ?? '').trim();
+    const isFiniteNumber = value =>
+      typeof value === 'number' && Number.isFinite(value);
+
+    const playerHeaders = players
+      .getRange(2, 1, 1, players.getLastColumn())
+      .getDisplayValues()[0]
+      .map(normalize);
+
+    const columnFor = header => {
+      const index = playerHeaders.indexOf(header);
+
+      if (index === -1) {
+        throw new Error(
+          `Could not find the ${header} column in Player Values - Cats.`
+        );
+      }
+
+      return index;
+    };
+
+    const statusColumn = columnFor('FTeam');
+    const nhlTeamColumn = columnFor('TEAM');
+    const categoryColumns = sourceCategoryNames.map(columnFor);
+
+    // H2H I:V mirrors the fourteen category z-scores in Player Values - Cats.
+    // W contains each player's number of NHL games in the selected matchup week.
+    const myRoster = h2h.getRange(3, 9, 33, 15).getValues();
+    const opponentRoster = h2h.getRange(39, 9, 33, 15).getValues();
+
+    const rosterSummary = roster => {
+      const result = sourceCategoryNames.map(() => ({
+        weightedSum: 0,
+        gameWeight: 0,
+        gameSquares: 0
+      }));
+
+      roster.forEach(row => {
+        const games = row[14];
+
+        if (!isFiniteNumber(games) || games <= 0) return;
+
+        for (let category = 0; category < 14; category++) {
+          const value = row[category];
+
+          // A blank goalie/skater category is not a z-score of zero. Ignoring
+          // it prevents position-ineligible players from changing uncertainty.
+          if (!isFiniteNumber(value)) continue;
+
+          result[category].weightedSum += value * games;
+          result[category].gameWeight += games;
+          result[category].gameSquares += games * games;
+        }
+      });
+
+      return result;
+    };
+
+    const myCurrent = rosterSummary(myRoster);
+    const opponent = rosterSummary(opponentRoster);
+
+    const categoryZScores = (mySummary, candidateValues, candidateGames) =>
+      sourceCategoryNames.map((_, category) => {
+        const mine = { ...mySummary[category] };
+        const theirs = opponent[category];
+        const candidateValue = candidateValues
+          ? candidateValues[category]
+          : null;
+
+        if (
+          isFiniteNumber(candidateValue) &&
+          isFiniteNumber(candidateGames) &&
+          candidateGames > 0
+        ) {
+          mine.weightedSum += candidateValue * candidateGames;
+          mine.gameWeight += candidateGames;
+          mine.gameSquares += candidateGames * candidateGames;
+        }
+
+        if (rateCategoryIndexes.has(category)) {
+          if (mine.gameWeight === 0 || theirs.gameWeight === 0) return null;
+
+          const myRate = mine.weightedSum / mine.gameWeight;
+          const opponentRate = theirs.weightedSum / theirs.gameWeight;
+          const variance =
+            mine.gameSquares / (mine.gameWeight * mine.gameWeight) +
+            theirs.gameSquares /
+              (theirs.gameWeight * theirs.gameWeight);
+
+          return variance > 0
+            ? (myRate - opponentRate) / Math.sqrt(variance)
+            : null;
+        }
+
+        const variance = mine.gameSquares + theirs.gameSquares;
+
+        return variance > 0
+          ? (mine.weightedSum - theirs.weightedSum) /
+            Math.sqrt(variance)
+          : null;
+      });
+
+    const normalCdf = z => {
+      // Abramowitz and Stegun 7.1.26; accurate to better than 7.5e-8.
+      const sign = z < 0 ? -1 : 1;
+      const x = Math.abs(z) / Math.sqrt(2);
+      const t = 1 / (1 + 0.3275911 * x);
+      const erf = 1 - (((((1.061405429 * t - 1.453152027) * t +
+        1.421413741) * t - 0.284496736) * t + 0.254829592) * t) *
+        Math.exp(-x * x);
+
+      return 0.5 * (1 + sign * erf);
+    };
+
+    const probabilities = zScores => zScores.map(z =>
+      isFiniteNumber(z) ? normalCdf(z) : 0.5
+    );
+
+    const matchupWinProbability = categoryProbabilities => {
+      let distribution = [1];
+
+      categoryProbabilities.forEach(probability => {
+        const next = Array(distribution.length + 1).fill(0);
+
+        distribution.forEach((chance, wins) => {
+          next[wins] += chance * (1 - probability);
+          next[wins + 1] += chance * probability;
+        });
+
+        distribution = next;
+      });
+
+      const tieWins = categoryProbabilities.length / 2;
+      let result = distribution[tieWins] * 0.5;
+
+      for (let wins = tieWins + 1; wins < distribution.length; wins++) {
+        result += distribution[wins];
+      }
+
+      return result;
+    };
+
+    const scheduleHeaders = schedule
+      .getRange(31, 1, 1, schedule.getLastColumn())
+      .getDisplayValues()[0]
+      .map(normalize);
+    const remainingGamesColumn = scheduleHeaders.indexOf(
+      'Games remaining this week'
+    );
+
+    if (remainingGamesColumn === -1) {
+      throw new Error(
+        'Could not find the Games remaining this week column in Schedule row 31. '
+        + 'Run the updateschedule command first.'
+      );
+    }
+
+    const scheduleRows = schedule
+      .getRange(
+        32,
+        1,
+        schedule.getLastRow() - 31,
+        remainingGamesColumn + 1
+      )
+      .getValues();
+    const gamesByTeam = new Map();
+
+    scheduleRows.forEach(row => {
+      const team = normalize(row[0]);
+      const games = row[remainingGamesColumn];
+
+      if (team !== '' && isFiniteNumber(games)) {
+        gamesByTeam.set(team, games);
+      }
+    });
+
+    const currentProbabilities = probabilities(
+      categoryZScores(myCurrent, null, null)
+    );
+    const currentExpectedCategories = currentProbabilities.reduce(
+      (sum, probability) => sum + probability,
+      0
+    );
+    const currentMatchupWin = matchupWinProbability(currentProbabilities);
+
+    const outputColumn = 44; // AR
+    players.getRange(2, outputColumn, 1, 2).setValues([[
+      'Δ Expected Cats Won',
+      'Δ Matchup Win %'
+    ]]);
+
+    if (lastPlayerRow < firstDataRow) return;
+
+    const playerRows = players
+      .getRange(
+        firstDataRow,
+        1,
+        lastPlayerRow - firstDataRow + 1,
+        players.getLastColumn()
+      )
+      .getValues();
+
+    const output = playerRows.map(row => {
+      if (normalize(row[statusColumn]) !== 'Undrafted') {
+        return ['', ''];
+      }
+
+      const candidateGames = gamesByTeam.get(
+        normalize(row[nhlTeamColumn])
+      ) ?? 0;
+      const candidateValues = categoryColumns.map(column => row[column]);
+      const addedProbabilities = probabilities(
+        categoryZScores(myCurrent, candidateValues, candidateGames)
+      );
+      const addedExpectedCategories = addedProbabilities.reduce(
+        (sum, probability) => sum + probability,
+        0
+      );
+      const addedMatchupWin = matchupWinProbability(addedProbabilities);
+
+      return [
+        addedExpectedCategories - currentExpectedCategories,
+        addedMatchupWin - currentMatchupWin
+      ];
+    });
+
+    players
+      .getRange(firstDataRow, outputColumn, output.length, 2)
+      .setValues(output)
+      .setNumberFormats(Array(output.length).fill(['0.000', '0.0%']));
   }
