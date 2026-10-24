@@ -14,6 +14,10 @@
         'calculateH2HPickupValues'
       )
       .addItem(
+        'Find Trades',
+        'findTrades'
+      )
+      .addItem(
         'Stop calculating player rankings',
         'stopRankingCalculations'
       )
@@ -680,4 +684,378 @@
       .getRange(firstDataRow, outputColumn, output.length, 2)
       .setValues(output)
       .setNumberFormats(Array(output.length).fill(['0.000', '0.0%']));
+  }
+
+  /**
+   * Find one-for-one trades where each side improves in at least one category.
+   * A straight swap cannot improve both teams' average ranking simultaneously,
+   * so the results prioritize balanced category gains and show the ranking cost
+   * (or benefit) for both managers explicitly. Category changes are team
+   * average z-score deltas, matching the values in Roster Comparison.
+   */
+  function findTrades() {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const playersSheet = ss.getSheetByName('Player Values - Cats');
+    const comparisonSheet = ss.getSheetByName('Roster Comparison');
+    const resultsSheet = ss.getSheetByName('Trade Finder');
+
+    if (!playersSheet || !comparisonSheet || !resultsSheet) {
+      throw new Error(
+        'Expected Player Values - Cats, Roster Comparison, and Trade Finder sheets.'
+      );
+    }
+
+    const myTeam = 'Rob/Orad';
+    const firstDataRow = 3;
+    const categoryNames = [
+      'G', 'A', '+/-', 'PIM', 'PPP', 'SHP', 'SOG',
+      'FOW', 'HIT', 'BLK', 'W', 'GAA', 'SV%', 'SO'
+    ];
+    const minimumCategoryChange = 0.01;
+    const minimumMyRankImprovement = -0.01;
+    const normalize = value => String(value ?? '').trim();
+    const isFiniteNumber = value =>
+      typeof value === 'number' && Number.isFinite(value);
+
+    const headers = playersSheet
+      .getRange(2, 1, 1, playersSheet.getLastColumn())
+      .getDisplayValues()[0]
+      .map(normalize);
+    const columnFor = header => {
+      const index = headers.indexOf(header);
+      if (index === -1) {
+        throw new Error(
+          `Could not find the ${header} column in Player Values - Cats.`
+        );
+      }
+      return index;
+    };
+
+    const rankingColumn = columnFor('New ranking');
+    const ownerColumn = columnFor('FTeam');
+    const nameColumn = columnFor('PLAYER');
+    const positionColumn = columnFor('POS');
+    const performanceColumn = columnFor('Season vs Projection Δ');
+    const categoryColumns = categoryNames.map(columnFor);
+    const rosterTeams = new Set(
+      comparisonSheet.getRange('A6:A13').getDisplayValues().flat()
+        .map(normalize)
+        .filter(Boolean)
+    );
+    const rows = playersSheet
+      .getRange(
+        firstDataRow,
+        1,
+        playersSheet.getLastRow() - firstDataRow + 1,
+        playersSheet.getLastColumn()
+      )
+      .getValues();
+    const replacementTotals = categoryNames.map(() => ({ sum: 0, count: 0 }));
+    const replacementRankTotals = {
+      goalie: { sum: 0, count: 0 },
+      skater: { sum: 0, count: 0 }
+    };
+
+    // Available players define the replacement level used to preserve the
+    // number of skater and goalie contributors after cross-position swaps.
+    rows.forEach(row => {
+      if (normalize(row[ownerColumn]) !== 'Undrafted') return;
+
+      const isGoalie = normalize(row[positionColumn]).split(',').map(
+        position => position.trim()
+      ).includes('G');
+      const replacementRank = row[rankingColumn];
+      if (isFiniteNumber(replacementRank)) {
+        const bucket = isGoalie
+          ? replacementRankTotals.goalie
+          : replacementRankTotals.skater;
+        bucket.sum += replacementRank;
+        bucket.count++;
+      }
+
+      categoryColumns.forEach((column, index) => {
+        if (isFiniteNumber(row[column])) {
+          replacementTotals[index].sum += row[column];
+          replacementTotals[index].count++;
+        }
+      });
+    });
+    const replacementLevels = replacementTotals.map(total =>
+      total.count > 0 ? total.sum / total.count : 0
+    );
+    const replacementRanks = {
+      goalie: replacementRankTotals.goalie.sum / replacementRankTotals.goalie.count,
+      skater: replacementRankTotals.skater.sum / replacementRankTotals.skater.count
+    };
+    if (!isFiniteNumber(replacementRanks.goalie) ||
+      !isFiniteNumber(replacementRanks.skater)) {
+      throw new Error('Could not calculate goalie and skater replacement-level rankings.');
+    }
+    const byTeam = new Map();
+
+    rows.forEach(row => {
+      const owner = normalize(row[ownerColumn]);
+      const name = normalize(row[nameColumn]);
+      const ranking = row[rankingColumn];
+      const positions = normalize(row[positionColumn]).split(',').map(
+        position => position.trim()
+      );
+
+      if (!rosterTeams.has(owner) || name === '' || !isFiniteNumber(ranking)) {
+        return;
+      }
+
+      if (!byTeam.has(owner)) {
+        byTeam.set(owner, []);
+      }
+      byTeam.get(owner).push({
+        name,
+        ranking,
+        isGoalie: positions.includes('G'),
+        seasonVsProjection: isFiniteNumber(row[performanceColumn])
+          ? row[performanceColumn]
+          : null,
+        // Keep non-applicable skater/goalie categories blank. Roster
+        // Comparison's AVERAGEIFS excludes those cells, so the trade math must
+        // exclude them too rather than treating them as a zero z-score.
+        categories: categoryColumns.map(column =>
+          isFiniteNumber(row[column]) ? row[column] : null
+        )
+      });
+    });
+
+    const myPlayers = byTeam.get(myTeam) || [];
+    if (myPlayers.length === 0) {
+      throw new Error(`No ranked players were found for ${myTeam}.`);
+    }
+
+    const average = teamPlayers =>
+      teamPlayers.reduce((sum, player) => sum + player.ranking, 0) /
+      teamPlayers.length;
+    const replacementRankAdjustment = (sent, received) => {
+      if (sent.isGoalie === received.isGoalie) return 0;
+      return sent.isGoalie
+        ? replacementRanks.goalie - replacementRanks.skater
+        : replacementRanks.skater - replacementRanks.goalie;
+    };
+    const myAverage = average(myPlayers);
+    const categoryAverages = teamPlayers => categoryNames.map((_, index) => {
+      let sum = 0;
+      let count = 0;
+
+      teamPlayers.forEach(player => {
+        const value = player.categories[index];
+        if (isFiniteNumber(value)) {
+          sum += value;
+          count++;
+        }
+      });
+
+      return { sum, count, average: count > 0 ? sum / count : null };
+    });
+    const tradeCategoryDeltas = (before, sent, received) =>
+      before.map((category, index) => {
+        let sum = category.sum;
+        let count = category.count;
+        const sentValue = sent.categories[index];
+        const receivedValue = received.categories[index];
+
+        if (isFiniteNumber(sentValue)) {
+          sum -= sentValue;
+          count--;
+        }
+        if (isFiniteNumber(receivedValue)) {
+          sum += receivedValue;
+          count++;
+        }
+
+        // A goalie-for-skater trade must not improve a goalie average merely
+        // because a weak goalie disappeared from its denominator. Fill a
+        // missing contributor, or displace an extra one, at replacement level
+        // so the category pool stays the same size as before the trade.
+        const replacementAdjustment = category.count - count;
+        sum += replacementAdjustment * replacementLevels[index];
+        count += replacementAdjustment;
+
+        const afterAverage = count > 0 ? sum / count : null;
+        // If one roster has no players for a category before or after the
+        // trade, Roster Comparison shows it as blank, so do not claim a gain.
+        return category.average === null || afterAverage === null
+          ? 0
+          : afterAverage - category.average;
+      });
+    const categorySummary = deltas => {
+      let netScore = 0;
+      const rankedChanges = deltas.map((delta, index) => {
+        // Score every category change, even tiny ones, so a trade's score is
+        // its net team-category gain rather than a sum of gains only.
+        netScore += delta;
+        return { delta, index, magnitude: Math.abs(delta) };
+      });
+      const displayed = rankedChanges.filter(
+        change => change.magnitude > minimumCategoryChange
+      );
+
+      // Keep small but meaningful trade effects visible when fewer than three
+      // categories clear the threshold.
+      rankedChanges.sort((left, right) => right.magnitude - left.magnitude)
+        .some(change => {
+          if (displayed.length >= 3) return true;
+          if (!displayed.some(item => item.index === change.index)) {
+            displayed.push(change);
+          }
+          return false;
+        });
+      displayed.sort((left, right) => right.magnitude - left.magnitude);
+      const text = displayed.map(change =>
+        `${categoryNames[change.index]} ${change.delta >= 0 ? '+' : ''}${change.delta.toFixed(3)}`
+      ).join(', ');
+
+      return { text, score: netScore };
+    };
+    const trades = [];
+    const myCategoryAverages = categoryAverages(myPlayers);
+
+    byTeam.forEach((partnerPlayers, partner) => {
+      if (partner === myTeam || partnerPlayers.length === 0) {
+        return;
+      }
+
+      const partnerAverage = average(partnerPlayers);
+      const partnerCategoryAverages = categoryAverages(partnerPlayers);
+      myPlayers.forEach(sent => {
+        partnerPlayers.forEach(received => {
+          const myDeltas = tradeCategoryDeltas(
+            myCategoryAverages, sent, received
+          );
+          const partnerDeltas = tradeCategoryDeltas(
+            partnerCategoryAverages, received, sent
+          );
+          const myCategories = categorySummary(myDeltas);
+          const partnerCategories = categorySummary(partnerDeltas);
+
+          // Category complementarity is what can make a one-for-one trade
+          // appealing to both teams; a scalar ranking alone is zero-sum.
+          const newMyAverage =
+            (myAverage * myPlayers.length - sent.ranking + received.ranking +
+              replacementRankAdjustment(sent, received)) /
+            myPlayers.length;
+          const newPartnerAverage =
+            (partnerAverage * partnerPlayers.length - received.ranking + sent.ranking +
+              replacementRankAdjustment(received, sent)) /
+            partnerPlayers.length;
+          const myImprovement = myAverage - newMyAverage;
+          const partnerImprovement = partnerAverage - newPartnerAverage;
+          if (myImprovement < minimumMyRankImprovement) {
+            return;
+          }
+          const balancedScore = Math.min(
+            myCategories.score,
+            partnerCategories.score
+          );
+          const tradeType = sent.isGoalie && received.isGoalie
+            ? 'Goalie ↔ Goalie'
+            : sent.isGoalie || received.isGoalie
+              ? 'Goalie ↔ Skater'
+              : 'Skater ↔ Skater';
+
+          trades.push({
+            partner,
+            sent,
+            received,
+            tradeType,
+            myAverage,
+            newMyAverage,
+            myImprovement,
+            partnerAverage,
+            newPartnerAverage,
+            partnerImprovement,
+            myCategories,
+            partnerCategories,
+            balancedScore
+          });
+        });
+      });
+    });
+
+    const compareTrades = (left, right) =>
+      right.myCategories.score - left.myCategories.score ||
+      left.newMyAverage - right.newMyAverage;
+    const compareByBalancedScore = (left, right) =>
+      right.balancedScore - left.balancedScore ||
+      right.myCategories.score - left.myCategories.score ||
+      left.newMyAverage - right.newMyAverage;
+
+    const tradeMix = [
+      { type: 'Goalie ↔ Goalie', limit: 5 },
+      { type: 'Goalie ↔ Skater', limit: 5 },
+      { type: 'Skater ↔ Skater', limit: 20 }
+    ];
+    const paretoFrontier = candidates => candidates.filter(candidate =>
+      !candidates.some(other => {
+        if (other === candidate) return false;
+
+        const noWorse =
+          other.myCategories.score >= candidate.myCategories.score &&
+          other.partnerCategories.score >= candidate.partnerCategories.score &&
+          other.myImprovement >= candidate.myImprovement;
+        const strictlyBetter =
+          other.myCategories.score > candidate.myCategories.score ||
+          other.partnerCategories.score > candidate.partnerCategories.score ||
+          other.myImprovement > candidate.myImprovement;
+
+        return noWorse && strictlyBetter;
+      })
+    );
+    const topTrades = tradeMix.flatMap(({ type, limit }) =>
+      paretoFrontier(trades.filter(trade => trade.tradeType === type))
+        .sort(compareByBalancedScore)
+        .slice(0, limit)
+    ).sort(compareTrades);
+
+    const outputHeaders = [
+      'Rank', 'Partner', 'You Send', 'Projection Δ',
+      'You Receive', 'Projection Δ',
+      'New Avg Rank', 'Avg Rank Δ',
+      'Net Category Score', 'Partner Net Category Score',
+      'Category Changes', 'Partner Category Changes',
+      'Balanced Trade Score'
+    ];
+    const output = topTrades.map((trade, index) => [
+      index + 1, trade.partner, trade.sent.name, trade.sent.seasonVsProjection,
+      trade.received.name, trade.received.seasonVsProjection,
+      trade.newMyAverage, trade.myImprovement,
+      trade.myCategories.score, trade.partnerCategories.score,
+      trade.myCategories.text, trade.partnerCategories.text,
+      trade.balancedScore
+    ]);
+
+    resultsSheet.getRange(
+      1, 1, resultsSheet.getMaxRows(), resultsSheet.getMaxColumns()
+    ).breakApart();
+    // Keep user-set column widths, alignments, and other formatting intact.
+    resultsSheet.getDataRange().clearContent();
+    resultsSheet.getRange(1, 1, 1, outputHeaders.length)
+      .setValues([outputHeaders]);
+
+    if (output.length > 0) {
+      resultsSheet.getRange(2, 1, output.length, outputHeaders.length)
+        .setValues(output);
+      resultsSheet.getRange(2, 4, output.length, 1)
+        .setNumberFormat('+0.000;-0.000;0.000');
+      resultsSheet.getRange(2, 6, output.length, 1)
+        .setNumberFormat('+0.000;-0.000;0.000');
+      resultsSheet.getRange(2, 7, output.length, 4)
+        .setNumberFormat('0.000');
+      resultsSheet.getRange(2, 13, output.length, 1)
+        .setNumberFormat('0.000');
+    } else {
+      resultsSheet.getRange('A2').setValue(
+        'No eligible one-for-one trades were found.'
+      );
+    }
+
+    resultsSheet.getRange('A1:M1').setFontWeight('bold')
+      .setBackground('#d9eaf7');
+    resultsSheet.setFrozenRows(1);
   }
