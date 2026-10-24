@@ -49,8 +49,8 @@ def test_fetch_local_rosters_parses_yahoo_team_tables(tmp_path):
     rosters = fetch_local_rosters(str(page))
 
     assert rosters.to_dict("records") == [
-        {"FullName": "Robert Thomas", "manager": "Slafter Revenge", "fantasy_team": "Slafter Revenge", "is_ir": False},
-        {"FullName": "Wyatt Johnston", "manager": "Slafter Revenge", "fantasy_team": "Slafter Revenge", "is_ir": False},
+        {"FullName": "Robert Thomas", "manager": "Slafter Revenge", "fantasy_team": "Slafter Revenge", "is_ir": False, "team": "", "position": ""},
+        {"FullName": "Wyatt Johnston", "manager": "Slafter Revenge", "fantasy_team": "Slafter Revenge", "is_ir": False, "team": "", "position": ""},
     ]
 
 
@@ -67,3 +67,17 @@ def test_fetch_local_rosters_marks_ir_slot_and_status_as_ir(tmp_path):
     assert rosters["is_ir"].tolist() == [True, True]
     update = build_roster_update(["Brock Faber", "Connor Bedard"], rosters)
     assert update.values == [["IR"], ["IR"]]
+
+
+def test_fetch_local_rosters_extracts_current_nhl_team_and_position(tmp_path):
+    page = tmp_path / "rosters.html"
+    page.write_text('''<div><p><a href="/hockey/5325/1">Slafter Revenge</a></p>
+    <table id="Tst-team-1"><tr><td class="pos first">BN</td><td>
+    <a class="Nowrap name F-link playernote" title="Dylan Garand">Dylan Garand</a>
+    <span class="D-b"><span class="Fz-xxs">NYR - G</span></span>
+    </td></tr></table>''')
+
+    roster = fetch_local_rosters(str(page)).iloc[0]
+
+    assert roster["team"] == "NYR"
+    assert roster["position"] == "G"

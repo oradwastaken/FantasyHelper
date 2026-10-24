@@ -38,7 +38,9 @@ roster_sync:
   player_name_column: E
   owner_column: D
   first_data_row: 3
-  last_data_row: 783
+  # Includes the spare rows used when a rostered Yahoo player is not yet in
+  # Player Values - Cats.
+  last_data_row: 1283
   local_html_glob: "roster_site/*.html"
   # These are the exact allowed values in Player Values - Cats column D.
   approved_managers: ["Rob/Orad", Henry, Jeremy, Ilan, Harley, Ryan, Lev, Phil]

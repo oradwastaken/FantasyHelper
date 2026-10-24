@@ -21,6 +21,7 @@ _PLAYER_NAME = re.compile(
 _ROSTER_ROW = re.compile(r"<tr\b[^>]*>(?P<row>.*?)</tr>", re.DOTALL | re.IGNORECASE)
 _IR_SLOT = re.compile(r'<td[^>]*class="[^"]*\bpos\b[^"]*"[^>]*>\s*IR\+?\s*</td>', re.IGNORECASE)
 _IR_STATUS = re.compile(r'title="Injured Reserve(?:\s*[^\"]*)?"', re.IGNORECASE)
+_YAHOO_TEAM_AND_POSITION = re.compile(r'<span class="Fz-xxs">\s*([A-Z]{2,3})\s*-\s*([A-Z/]+)')
 
 
 @dataclass(frozen=True)
@@ -57,6 +58,8 @@ def fetch_local_rosters(path_pattern: str) -> pd.DataFrame:
         for row_html in rows or [match.group("table")]:
             names = _PLAYER_NAME.findall(row_html)
             is_ir = bool(_IR_SLOT.search(row_html) or _IR_STATUS.search(row_html))
+            player_details = _YAHOO_TEAM_AND_POSITION.search(row_html)
+            nhl_team, position = player_details.groups() if player_details else ("", "")
             for name in names:
                 records.append(
                     {
@@ -64,6 +67,11 @@ def fetch_local_rosters(path_pattern: str) -> pd.DataFrame:
                         "manager": team,
                         "fantasy_team": team,
                         "is_ir": is_ir,
+                        # This is Yahoo's current NHL club and eligibility.  It
+                        # is sufficient for an automatically-added sheet row to
+                        # participate in the schedule lookup.
+                        "team": nhl_team,
+                        "position": position,
                     }
                 )
     if not records:
