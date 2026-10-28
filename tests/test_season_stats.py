@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 
+from fantasyhelper.api_calls import _coalesce_duplicate_columns
 from fantasyhelper.season_stats import build_season_zscores, canonical_player_id
 
 
@@ -52,3 +53,19 @@ def test_canonical_player_id_handles_google_numeric_ids():
     assert canonical_player_id(8477492.0) == "8477492"
     assert canonical_player_id("8477492") == "8477492"
     assert canonical_player_id(None) == ""
+
+
+def test_duplicate_nhl_report_fields_use_the_first_nonblank_value():
+    reports = pd.concat(
+        [
+            pd.DataFrame({"goals": [None, 2], "gamesPlayed": [None, 1]}, index=[1, 2]),
+            pd.DataFrame({"goals": [8, 3], "gamesPlayed": [10, 1]}, index=[1, 2]),
+        ],
+        axis=1,
+    )
+
+    result = _coalesce_duplicate_columns(reports)
+
+    assert result.loc[1, "goals"] == 8
+    assert result.loc[1, "gamesPlayed"] == 10
+    assert result.loc[2, "goals"] == 2

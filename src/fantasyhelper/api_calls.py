@@ -16,6 +16,18 @@ CURRENT_SEASON = get_current_season()
 LEAGUE_ID = "465.l.6920"  # For Keeps Mk-XII 2025-2026 season
 
 
+def _coalesce_duplicate_columns(frame: pd.DataFrame) -> pd.DataFrame:
+    """Keep the first nonblank value when NHL reports share a field name.
+
+    The summary report can omit a player who is still present in realtime,
+    bios, or faceoff reports.  Keeping the first duplicate column wholesale
+    would therefore turn valid values from the latter reports into NaN.
+    """
+    if not frame.columns.duplicated().any():
+        return frame
+    return frame.T.groupby(level=0, sort=False).first().T
+
+
 def fetch_teams() -> pd.DataFrame:
     teams = client.teams.teams()
     return pd.DataFrame(teams)
@@ -69,9 +81,7 @@ def fetch_skater_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
         df.set_index("playerId", inplace=True)
         df_list.append(df)
 
-    df_stats = pd.concat(df_list, axis=1, ignore_index=False)
-    df_stats = df_stats.loc[:, ~df_stats.columns.duplicated()].copy()
-    return df_stats
+    return _coalesce_duplicate_columns(pd.concat(df_list, axis=1, ignore_index=False))
 
 
 def fetch_goalie_stats(season: str = CURRENT_SEASON) -> pd.DataFrame:
@@ -127,8 +137,7 @@ def fetch_skater_stats_for_dates(season: str, start_date: str, end_date: str) ->
             frames.append(frame)
     if not frames:
         return pd.DataFrame()
-    result = pd.concat(frames, axis=1)
-    return result.loc[:, ~result.columns.duplicated()].copy()
+    return _coalesce_duplicate_columns(pd.concat(frames, axis=1))
 
 
 def fetch_goalie_stats_for_dates(season: str, start_date: str, end_date: str) -> pd.DataFrame:

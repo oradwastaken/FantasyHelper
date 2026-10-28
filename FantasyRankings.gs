@@ -732,6 +732,7 @@
     };
 
     const rankingColumn = columnFor('New ranking');
+    const vorpColumn = columnFor('VORP');
     const ownerColumn = columnFor('FTeam');
     const nameColumn = columnFor('PLAYER');
     const positionColumn = columnFor('POS');
@@ -750,67 +751,25 @@
         playersSheet.getLastColumn()
       )
       .getValues();
-    const replacementTotals = categoryNames.map(() => ({ sum: 0, count: 0 }));
-    const replacementRankTotals = {
-      goalie: { sum: 0, count: 0 },
-      skater: { sum: 0, count: 0 }
-    };
-
-    // Available players define the replacement level used to preserve the
-    // number of skater and goalie contributors after cross-position swaps.
-    rows.forEach(row => {
-      if (normalize(row[ownerColumn]) !== 'Undrafted') return;
-
-      const isGoalie = normalize(row[positionColumn]).split(',').map(
-        position => position.trim()
-      ).includes('G');
-      const replacementRank = row[rankingColumn];
-      if (isFiniteNumber(replacementRank)) {
-        const bucket = isGoalie
-          ? replacementRankTotals.goalie
-          : replacementRankTotals.skater;
-        bucket.sum += replacementRank;
-        bucket.count++;
-      }
-
-      categoryColumns.forEach((column, index) => {
-        if (isFiniteNumber(row[column])) {
-          replacementTotals[index].sum += row[column];
-          replacementTotals[index].count++;
-        }
-      });
-    });
-    const replacementLevels = replacementTotals.map(total =>
-      total.count > 0 ? total.sum / total.count : 0
-    );
-    const replacementRanks = {
-      goalie: replacementRankTotals.goalie.sum / replacementRankTotals.goalie.count,
-      skater: replacementRankTotals.skater.sum / replacementRankTotals.skater.count
-    };
-    if (!isFiniteNumber(replacementRanks.goalie) ||
-      !isFiniteNumber(replacementRanks.skater)) {
-      throw new Error('Could not calculate goalie and skater replacement-level rankings.');
-    }
     const byTeam = new Map();
+    const availablePlayers = [];
 
     rows.forEach(row => {
       const owner = normalize(row[ownerColumn]);
       const name = normalize(row[nameColumn]);
       const ranking = row[rankingColumn];
+      const vorp = row[vorpColumn];
       const positions = normalize(row[positionColumn]).split(',').map(
         position => position.trim()
       );
 
-      if (!rosterTeams.has(owner) || name === '' || !isFiniteNumber(ranking)) {
+      if (name === '' || !isFiniteNumber(ranking)) {
         return;
       }
-
-      if (!byTeam.has(owner)) {
-        byTeam.set(owner, []);
-      }
-      byTeam.get(owner).push({
+      const player = {
         name,
         ranking,
+        vorp: isFiniteNumber(vorp) ? vorp : null,
         isGoalie: positions.includes('G'),
         seasonVsProjection: isFiniteNumber(row[performanceColumn])
           ? row[performanceColumn]
@@ -821,7 +780,16 @@
         categories: categoryColumns.map(column =>
           isFiniteNumber(row[column]) ? row[column] : null
         )
-      });
+      };
+
+      if (owner === 'Undrafted') {
+        availablePlayers.push(player);
+      } else if (rosterTeams.has(owner)) {
+        if (!byTeam.has(owner)) {
+          byTeam.set(owner, []);
+        }
+        byTeam.get(owner).push(player);
+      }
     });
 
     const myPlayers = byTeam.get(myTeam) || [];
@@ -832,13 +800,6 @@
     const average = teamPlayers =>
       teamPlayers.reduce((sum, player) => sum + player.ranking, 0) /
       teamPlayers.length;
-    const replacementRankAdjustment = (sent, received) => {
-      if (sent.isGoalie === received.isGoalie) return 0;
-      return sent.isGoalie
-        ? replacementRanks.goalie - replacementRanks.skater
-        : replacementRanks.skater - replacementRanks.goalie;
-    };
-    const myAverage = average(myPlayers);
     const categoryAverages = teamPlayers => categoryNames.map((_, index) => {
       let sum = 0;
       let count = 0;
@@ -853,37 +814,86 @@
 
       return { sum, count, average: count > 0 ? sum / count : null };
     });
-    const tradeCategoryDeltas = (before, sent, received) =>
-      before.map((category, index) => {
-        let sum = category.sum;
-        let count = category.count;
-        const sentValue = sent.categories[index];
-        const receivedValue = received.categories[index];
+    const hasCategoryValue = player =>
+      player.categories.some(isFiniteNumber);
+    const categoryDeltas = (before, after) => before.map((category, index) => {
+      const afterCategory = after[index];
+      // If one roster has no players for a category before or after the
+      // transaction, Roster Comparison shows it as blank, so do not claim a
+      // gain.
+      return category.average === null || afterCategory.average === null
+        ? 0
+        : afterCategory.average - category.average;
+    });
+    const abbreviatedName = name => {
+      const parts = normalize(name).split(/\s+/).filter(Boolean);
+      if (parts.length < 2) return normalize(name);
+      const surname = parts.pop();
+      const initials = parts.map(part => part.split('-').map(
+        segment => `${segment.charAt(0)}.`
+      ).join('-')).join(' ');
+      return `${initials} ${surname}`;
+    };
+    const followUpText = followUp => {
+      if (!followUp.drop) return '';
+      return `- ${abbreviatedName(followUp.drop.name)}; + ${abbreviatedName(followUp.add.name)}`;
+    };
+    const applyTradeWithRosterMove = (teamPlayers, sent, received) => {
+      const afterTrade = teamPlayers.filter(player => player !== sent);
+      afterTrade.push(received);
+      if (sent.isGoalie === received.isGoalie) {
+        return { players: afterTrade, drop: null, add: null };
+      }
 
-        if (isFiniteNumber(sentValue)) {
-          sum -= sentValue;
-          count--;
-        }
-        if (isFiniteNumber(receivedValue)) {
-          sum += receivedValue;
-          count++;
-        }
+      // A cross-position swap overfills received's position and leaves a hole
+      // at sent's position. Model the actual cleanup using player value: drop
+      // the lowest-VORP *existing* player at the overfull position, then add
+      // the highest-VORP available player at the newly open position. New
+      // ranking is a team-category measure, not a cut-value measure.
+      const dropCandidates = teamPlayers.filter(player =>
+        player !== sent && player.isGoalie === received.isGoalie &&
+        hasCategoryValue(player) && isFiniteNumber(player.vorp)
+      ).sort((left, right) => left.vorp - right.vorp);
+      const addCandidates = availablePlayers.filter(player =>
+        player.isGoalie === sent.isGoalie && hasCategoryValue(player) &&
+        isFiniteNumber(player.vorp)
+      ).sort((left, right) => right.vorp - left.vorp);
+      const drop = dropCandidates[0];
+      const add = addCandidates[0];
+      if (!drop || !add) return null;
 
-        // A goalie-for-skater trade must not improve a goalie average merely
-        // because a weak goalie disappeared from its denominator. Fill a
-        // missing contributor, or displace an extra one, at replacement level
-        // so the category pool stays the same size as before the trade.
-        const replacementAdjustment = category.count - count;
-        sum += replacementAdjustment * replacementLevels[index];
-        count += replacementAdjustment;
+      return {
+        players: afterTrade.filter(player => player !== drop).concat(add),
+        drop,
+        add
+      };
+    };
+    const noTradeBaseline = (teamPlayers, sent, received) => {
+      if (sent.isGoalie === received.isGoalie) {
+        return { players: teamPlayers, drop: null, add: null };
+      }
 
-        const afterAverage = count > 0 ? sum / count : null;
-        // If one roster has no players for a category before or after the
-        // trade, Roster Comparison shows it as blank, so do not claim a gain.
-        return category.average === null || afterAverage === null
-          ? 0
-          : afterAverage - category.average;
-      });
+      // Compare a cross-position trade with the no-trade roster move that
+      // creates the same positional shape. This removes any independent
+      // waiver value (for example, cutting Binnington for Olivier) from the
+      // trade score, leaving only the value caused by sent -> received.
+      const dropCandidates = teamPlayers.filter(player =>
+        player.isGoalie === received.isGoalie && hasCategoryValue(player) &&
+        isFiniteNumber(player.vorp)
+      ).sort((left, right) => left.vorp - right.vorp);
+      const addCandidates = availablePlayers.filter(player =>
+        player.isGoalie === sent.isGoalie && hasCategoryValue(player) &&
+        isFiniteNumber(player.vorp)
+      ).sort((left, right) => right.vorp - left.vorp);
+      const drop = dropCandidates[0];
+      const add = addCandidates[0];
+      if (!drop || !add) return null;
+      return {
+        players: teamPlayers.filter(player => player !== drop).concat(add),
+        drop,
+        add
+      };
+    };
     const categorySummary = deltas => {
       let netScore = 0;
       const rankedChanges = deltas.map((delta, index) => {
@@ -914,36 +924,39 @@
       return { text, score: netScore };
     };
     const trades = [];
-    const myCategoryAverages = categoryAverages(myPlayers);
 
     byTeam.forEach((partnerPlayers, partner) => {
       if (partner === myTeam || partnerPlayers.length === 0) {
         return;
       }
 
-      const partnerAverage = average(partnerPlayers);
-      const partnerCategoryAverages = categoryAverages(partnerPlayers);
       myPlayers.forEach(sent => {
         partnerPlayers.forEach(received => {
-          const myDeltas = tradeCategoryDeltas(
-            myCategoryAverages, sent, received
+          const myFollowUp = applyTradeWithRosterMove(myPlayers, sent, received);
+          const partnerFollowUp = applyTradeWithRosterMove(
+            partnerPlayers, received, sent
           );
-          const partnerDeltas = tradeCategoryDeltas(
-            partnerCategoryAverages, received, sent
+          const myBaseline = noTradeBaseline(myPlayers, sent, received);
+          const partnerBaseline = noTradeBaseline(
+            partnerPlayers, received, sent
+          );
+          if (!myFollowUp || !partnerFollowUp || !myBaseline || !partnerBaseline) return;
+          const myDeltas = categoryDeltas(
+            categoryAverages(myBaseline.players), categoryAverages(myFollowUp.players)
+          );
+          const partnerDeltas = categoryDeltas(
+            categoryAverages(partnerBaseline.players),
+            categoryAverages(partnerFollowUp.players)
           );
           const myCategories = categorySummary(myDeltas);
           const partnerCategories = categorySummary(partnerDeltas);
 
           // Category complementarity is what can make a one-for-one trade
           // appealing to both teams; a scalar ranking alone is zero-sum.
-          const newMyAverage =
-            (myAverage * myPlayers.length - sent.ranking + received.ranking +
-              replacementRankAdjustment(sent, received)) /
-            myPlayers.length;
-          const newPartnerAverage =
-            (partnerAverage * partnerPlayers.length - received.ranking + sent.ranking +
-              replacementRankAdjustment(received, sent)) /
-            partnerPlayers.length;
+          const myAverage = average(myBaseline.players);
+          const partnerAverage = average(partnerBaseline.players);
+          const newMyAverage = average(myFollowUp.players);
+          const newPartnerAverage = average(partnerFollowUp.players);
           const myImprovement = myAverage - newMyAverage;
           const partnerImprovement = partnerAverage - newPartnerAverage;
           if (myImprovement < minimumMyRankImprovement) {
@@ -963,6 +976,8 @@
             partner,
             sent,
             received,
+            myFollowUp,
+            partnerFollowUp,
             tradeType,
             myAverage,
             newMyAverage,
@@ -989,7 +1004,7 @@
     const tradeMix = [
       { type: 'Goalie ↔ Goalie', limit: 5 },
       { type: 'Goalie ↔ Skater', limit: 5 },
-      { type: 'Skater ↔ Skater', limit: 20 }
+      { type: 'Skater ↔ Skater', limit: 40 }
     ];
     const paretoFrontier = candidates => candidates.filter(candidate =>
       !candidates.some(other => {
@@ -1019,7 +1034,7 @@
       'New Avg Rank', 'Avg Rank Δ',
       'Net Category Score', 'Partner Net Category Score',
       'Category Changes', 'Partner Category Changes',
-      'Balanced Trade Score'
+      'Balanced Trade Score', 'Your Follow-up', 'Partner Follow-up'
     ];
     const output = topTrades.map((trade, index) => [
       index + 1, trade.partner, trade.sent.name, trade.sent.seasonVsProjection,
@@ -1027,13 +1042,13 @@
       trade.newMyAverage, trade.myImprovement,
       trade.myCategories.score, trade.partnerCategories.score,
       trade.myCategories.text, trade.partnerCategories.text,
-      trade.balancedScore
+      trade.balancedScore, followUpText(trade.myFollowUp),
+      followUpText(trade.partnerFollowUp)
     ]);
 
     resultsSheet.getRange(
       1, 1, resultsSheet.getMaxRows(), resultsSheet.getMaxColumns()
     ).breakApart();
-    // Keep user-set column widths, alignments, and other formatting intact.
     resultsSheet.getDataRange().clearContent();
     resultsSheet.getRange(1, 1, 1, outputHeaders.length)
       .setValues([outputHeaders]);
@@ -1044,18 +1059,24 @@
       resultsSheet.getRange(2, 4, output.length, 1)
         .setNumberFormat('+0.000;-0.000;0.000');
       resultsSheet.getRange(2, 6, output.length, 1)
-        .setNumberFormat('+0.000;-0.000;0.000');
+      .setNumberFormat('+0.000;-0.000;0.000');
       resultsSheet.getRange(2, 7, output.length, 4)
         .setNumberFormat('0.000');
       resultsSheet.getRange(2, 13, output.length, 1)
         .setNumberFormat('0.000');
+      const goalieRowColor = '#fff2cc';
+      resultsSheet.getRange(2, 1, output.length, outputHeaders.length)
+        .setBackgrounds(topTrades.map(trade => Array(outputHeaders.length).fill(
+          trade.sent.isGoalie || trade.received.isGoalie ? goalieRowColor : '#ffffff'
+        )));
     } else {
       resultsSheet.getRange('A2').setValue(
         'No eligible one-for-one trades were found.'
       );
     }
 
-    resultsSheet.getRange('A1:M1').setFontWeight('bold')
+    resultsSheet.getRange('A1:O1').setFontWeight('bold')
       .setBackground('#d9eaf7');
+    resultsSheet.autoResizeColumns(1, outputHeaders.length);
     resultsSheet.setFrozenRows(1);
   }

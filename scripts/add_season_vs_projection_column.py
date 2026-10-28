@@ -8,11 +8,17 @@ from fantasyhelper.sheets import get_gspread_client
 FORMULA = '''=MAP($AQ$3:$AQ,LAMBDA(id,
   IF(id="","",
     LET(
-      projection,IFNA(XLOOKUP(id,Projections!$A$3:$A,Projections!$E$3:$R),""),
-      season,IFNA(XLOOKUP(id,'Stats (Season)'!$A$3:$A,'Stats (Season)'!$E$3:$R),""),
+      rawProjection,XLOOKUP(id,Projections!$A$3:$A,Projections!$E$3:$R),
+      rawSeason,XLOOKUP(id,'Stats (Season)'!$A$3:$A,'Stats (Season)'!$E$3:$R),
+      projection,ARRAYFORMULA(IF(rawProjection="",0,VALUE(rawProjection))),
+      season,ARRAYFORMULA(IF(rawSeason="",0,VALUE(rawSeason))),
       weights,Projections!$E$1:$R$1,
-      valid,ISNUMBER(projection)*ISNUMBER(season),
-      IFERROR(SUM(FILTER((season-projection)*weights,valid))/SUM(FILTER(weights,valid)),"")
+      valid,ARRAYFORMULA((rawProjection<>"")*(rawSeason<>"")),
+      IFERROR(
+        SUM(FILTER(ARRAYFORMULA(IF(valid,(season-projection)*weights,0)),valid))/
+        SUM(FILTER(weights,valid)),
+        ""
+      )
     )
   )
 ))'''
